@@ -234,6 +234,153 @@ function preventIOSZoom() {
   }
 }
 
+// Gérer le header collapsible sur mobile
+function initCompactHeader() {
+  if (!isMobileView()) return;
+
+  const header = document.querySelector('.app-header');
+  if (!header) return;
+
+  // Vérifier si déjà initialisé
+  if (header.classList.contains('mobile-header-init')) return;
+  header.classList.add('mobile-header-init');
+
+  // Ajouter la classe compact par défaut
+  header.classList.add('compact');
+
+  // Créer le bouton toggle si pas déjà présent
+  let toggleBtn = header.querySelector('.header-toggle');
+  if (!toggleBtn) {
+    toggleBtn = document.createElement('button');
+    toggleBtn.className = 'header-toggle';
+    toggleBtn.innerHTML = '<span class="header-toggle-icon">▼</span>';
+    toggleBtn.setAttribute('aria-label', 'Toggle header');
+    toggleBtn.setAttribute('type', 'button');
+
+    // Restructurer le header
+    const headerTitle = header.querySelector('h1');
+    const userInfo = header.querySelector('.header-user') || header.querySelector('.user-info');
+
+    // Créer la structure
+    const headerTop = document.createElement('div');
+    headerTop.className = 'app-header-top';
+
+    const headerDetails = document.createElement('div');
+    headerDetails.className = 'app-header-details';
+
+    const headerDetailsContent = document.createElement('div');
+    headerDetailsContent.className = 'app-header-details-content';
+
+    // Clone des infos utilisateur pour les détails
+    if (userInfo) {
+      const userInfoFull = document.createElement('div');
+      userInfoFull.className = 'user-info-full';
+
+      const userName = document.getElementById('userName');
+      const userRole = document.getElementById('userRole');
+
+      if (userName && userRole) {
+        userInfoFull.innerHTML = `
+          <div class="user-info-row">
+            <span class="user-label">Utilisateur</span>
+            <span class="user-value">${userName.textContent}</span>
+          </div>
+          <div class="user-info-row">
+            <span class="user-label">Rôle</span>
+            <span class="user-role-badge">${userRole.textContent}</span>
+          </div>
+        `;
+
+        // Boutons d'action
+        const usersBtn = document.getElementById('usersManagementBtn');
+        const logoutBtn = document.querySelector('[onclick*="logout"]');
+
+        if (usersBtn || logoutBtn) {
+          const headerActions = document.createElement('div');
+          headerActions.className = 'header-actions';
+
+          if (usersBtn && usersBtn.style.display !== 'none') {
+            const usersBtnClone = usersBtn.cloneNode(true);
+            usersBtnClone.textContent = '👥 Utilisateurs';
+            headerActions.appendChild(usersBtnClone);
+          }
+
+          if (logoutBtn) {
+            const logoutBtnClone = document.createElement('button');
+            logoutBtnClone.className = 'btn btn-secondary';
+            logoutBtnClone.textContent = '🚪 Déconnexion';
+            logoutBtnClone.onclick = () => API.logout();
+            headerActions.appendChild(logoutBtnClone);
+          }
+
+          userInfoFull.appendChild(headerActions);
+        }
+
+        headerDetailsContent.appendChild(userInfoFull);
+      }
+    }
+
+    headerDetails.appendChild(headerDetailsContent);
+
+    // Assembler le header
+    if (headerTitle) {
+      headerTop.appendChild(headerTitle.cloneNode(true));
+      headerTitle.replaceWith(headerTop);
+    }
+
+    headerTop.appendChild(toggleBtn);
+
+    if (userInfo) {
+      // Garder une version minimaliste visible
+      const userIcon = document.createElement('div');
+      userIcon.className = 'user-icon-mini';
+      userIcon.innerHTML = '👤';
+      userIcon.style.cssText = 'font-size: 1.2rem; cursor: pointer;';
+      userIcon.onclick = () => toggleBtn.click();
+      headerTop.appendChild(userIcon);
+    }
+
+    header.appendChild(headerDetails);
+
+    // Event listener pour le toggle
+    toggleBtn.addEventListener('click', () => {
+      toggleHeader();
+    });
+
+    // Event listener pour cacher en scrollant (optionnel)
+    let lastScroll = 0;
+    let scrollTimeout;
+
+    window.addEventListener('scroll', () => {
+      if (!isMobileView()) return;
+
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const currentScroll = window.pageYOffset;
+
+        if (currentScroll > lastScroll && currentScroll > 50) {
+          // Scroll vers le bas : compacter le header
+          header.classList.add('compact');
+          if (header.classList.contains('expanded')) {
+            toggleHeader();
+          }
+        }
+
+        lastScroll = currentScroll;
+      }, 100);
+    }, { passive: true });
+  }
+}
+
+// Toggle du header
+function toggleHeader() {
+  const header = document.querySelector('.app-header');
+  if (!header) return;
+
+  header.classList.toggle('expanded');
+  header.classList.toggle('compact');
+}
+
 // Initialisation au chargement
 document.addEventListener('DOMContentLoaded', () => {
   // Attendre un peu pour s'assurer que le DOM est prêt
@@ -243,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     enhanceTouchFeedback();
     handleMobileScroll();
     preventIOSZoom();
+    initCompactHeader();
   }, 100);
 });
 
@@ -255,11 +403,21 @@ window.addEventListener('actionLoaded', () => {
   }
 });
 
+// Réinitialiser sur changement d'orientation
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    initCompactHeader();
+    createAccordions();
+  }, 300);
+});
+
 // Export pour utilisation externe
 window.MobileUI = {
   isMobileView,
   createAccordions,
   toggleAccordion,
-  refresh: initMobileAccordions
+  toggleHeader,
+  refresh: initMobileAccordions,
+  refreshHeader: initCompactHeader
 };
 
