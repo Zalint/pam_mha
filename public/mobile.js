@@ -37,31 +37,31 @@ function createAccordions() {
     const sections = [
       {
         id: 'general',
-        icon: '',
+        icon: '📋',
         title: 'Général',
         content: document.getElementById('tab-general')
       },
       {
         id: 'resultats',
-        icon: '',
+        icon: '🎯',
         title: 'Résultats attendus',
         content: document.getElementById('tab-resultats')
       },
       {
         id: 'indicateurs',
-        icon: '',
+        icon: '📊',
         title: 'Indicateurs',
         content: document.getElementById('tab-indicateurs')
       },
       {
         id: 'budget',
-        icon: '',
+        icon: '📈',
         title: 'Budget',
         content: document.getElementById('tab-budget')
       },
       {
         id: 'historique',
-        icon: '',
+        icon: '📜',
         title: 'Historique',
         content: document.getElementById('tab-historique')
       }
@@ -78,7 +78,7 @@ function createAccordions() {
       const accordionHeader = document.createElement('div');
       accordionHeader.className = 'accordion-header';
       accordionHeader.innerHTML = `
-        <h3>${section.title}</h3>
+        <h3>${section.icon} ${section.title}</h3>
         <span class="accordion-icon">▼</span>
       `;
 
