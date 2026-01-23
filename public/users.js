@@ -174,7 +174,7 @@ function renderUsers() {
           </div>
           ${user.role === 'Directeur' && user.assignmentSummary ? `
             <div class="user-assignments" style="margin-top: 0.5rem; color: var(--color-text-light); font-size: 0.875rem;">
-              📋 ${getAssignmentSummaryText(user.assignmentSummary)}
+              ${getAssignmentSummaryText(user.assignmentSummary)}
             </div>
           ` : ''}
           <div class="user-date" style="margin-top: 0.5rem; color: var(--color-text-muted); font-size: 0.75rem;">

@@ -306,7 +306,7 @@ function enrichStatCards() {
   if (cardPhysique && programmesAvances.length > 0) {
     const details = `
       <div class="stat-card-details">
-        <div class="stat-detail-title">📊 Top 3 Programmes</div>
+        <div class="stat-detail-title">Top 3 Programmes</div>
         ${programmesAvances.map((p, i) => `
           <div class="stat-detail-item clickable" data-programme="${escapeHtml(p.programme)}" data-index="${i}">
             <span class="stat-detail-label">${i + 1}. ${escapeHtml(p.programme.substring(0, 40))}...</span>
@@ -387,7 +387,7 @@ function renderProgrammes() {
       <div class="programme-header">
         <h3 class="programme-title">📁 ${escapeHtml(prog.name)}</h3>
         <div class="programme-meta">
-          <span>📊 ${prog.actions.length} action${prog.actions.length > 1 ? 's' : ''}</span>
+          <span>${prog.actions.length} action${prog.actions.length > 1 ? 's' : ''}</span>
         </div>
       </div>
       <div class="programme-stats">
@@ -475,7 +475,7 @@ function renderActionsList() {
     <div class="action-card" data-action-id="${action.id}">
       <div class="action-card-header">
         <div>
-          <h4>🔧 ${escapeHtml(action.intitule || action.activite || 'Sans titre')}</h4>
+          <h4>${escapeHtml(action.intitule || action.activite || 'Sans titre')}</h4>
           <div class="badges">
             <span class="badge badge-physique">${action.tauxphysique || 0}% physique</span>
             <span class="badge badge-financier">${action.tauxfinancier || 0}% financier</span>

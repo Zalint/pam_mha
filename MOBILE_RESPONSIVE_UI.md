@@ -9,7 +9,7 @@ Améliorer l'expérience utilisateur sur mobile (iPhone 14 Pro Max et autres) en
 ### 1. **Accordéons Intelligents**
 - ✅ Remplacement automatique des tabs par des accordéons sur écrans ≤ 768px
 - ✅ Animations fluides d'ouverture/fermeture
-- ✅ Icônes visuelles pour chaque section
+- ✅ Design épuré et professionnel
 - ✅ Premier accordéon ouvert par défaut
 
 ### 2. **Design Mobile-First**
@@ -77,11 +77,11 @@ Chaque accordéon contient :
    - Padding adapté au mobile
 
 ### Sections Disponibles
-- 📋 **Général** : Informations de base (programme, action, responsable, etc.)
-- 🎯 **Résultats attendus** : Objectifs et résultats visés
-- 📊 **Indicateurs** : Cibles et résultats mesurés
-- 💰 **Budget** : Détail budgétaire trimestriel
-- 📜 **Historique** : Traçabilité des modifications
+- **Général** : Informations de base (programme, action, responsable, etc.)
+- **Résultats attendus** : Objectifs et résultats visés
+- **Indicateurs** : Cibles et résultats mesurés
+- **Budget** : Détail budgétaire trimestriel
+- **Historique** : Traçabilité des modifications
 
 ## 📱 Tests sur Mobile
 
