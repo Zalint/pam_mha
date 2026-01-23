@@ -1,13 +1,10 @@
 -- ============================================================================
 -- SEED DE PRODUCTION - MHA PAM 2026
 -- Généré automatiquement depuis l'environnement local
--- Date: 2026-01-23T19:54:17.160Z
+-- Date: 2026-01-23T20:30:18.415Z
 -- ============================================================================
 
 -- IMPORTANT: Ce script doit être exécuté APRÈS production_schema.sql
-
--- Désactiver temporairement les triggers et contraintes pour l'import
-SET session_replication_role = 'replica';
 
 -- ============================================================================
 -- DONNÉES DE LA TABLE: USERS
@@ -22,10 +19,10 @@ VALUES (2, 'Salmone', '$2b$10$0YG6rLu4W3fJr9cYktXVSOrPCnIlww3isN70.ZFByLZdxt8wJe
 -- DONNÉES DE LA TABLE: USERASSIGNMENTS
 -- ============================================================================
 
-INSERT INTO userAssignments (id, userid, assignmenttype, assignmentvalue, createdat, createdby)
+INSERT INTO userassignments (id, userid, assignmenttype, assignmentvalue, createdat, createdby)
 VALUES (1, 2, 'all', NULL, '2026-01-23T15:36:24.846Z', 1);
 
--- Total: 1 ligne(s) insérée(s) dans userAssignments
+-- Total: 1 ligne(s) insérée(s) dans userassignments
 
 -- ============================================================================
 -- DONNÉES DE LA TABLE: ACTIONS
@@ -108,10 +105,6 @@ VALUES (32, 'Gestion des Ressources en Eau et Lutte contre les Inondations', 'Di
 -- Total: 32 ligne(s) insérée(s) dans actions
 
 -- Aucune donnée pour la table historique
-
--- Réactiver les triggers et contraintes
-SET session_replication_role = 'origin';
-
 -- ============================================================================
 -- RÉINITIALISATION DES SÉQUENCES
 -- ============================================================================

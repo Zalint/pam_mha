@@ -519,6 +519,9 @@ async function loadActionDetail(id) {
       initTabs();
       // Activer l'onglet général par défaut
       switchTab('general');
+      
+      // Déclencher événement pour la version mobile
+      window.dispatchEvent(new Event('actionLoaded'));
     }, 100);
     
     // Remplir les onglets

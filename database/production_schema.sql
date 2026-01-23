@@ -9,24 +9,24 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(100) UNIQUE NOT NULL,
-  passwordHash VARCHAR(255) NOT NULL,
-  fullName VARCHAR(255) NOT NULL,
+  passwordhash VARCHAR(255) NOT NULL,
+  fullname VARCHAR(255) NOT NULL,
   role VARCHAR(50) NOT NULL CHECK (role IN ('Admin', 'Ministre', 'Directeur')),
-  isActive BOOLEAN DEFAULT true,
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  isactive BOOLEAN DEFAULT true,
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================================================
 -- 2. TABLE DES ASSIGNATIONS UTILISATEURS
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS userAssignments (
+CREATE TABLE IF NOT EXISTS userassignments (
   id SERIAL PRIMARY KEY,
-  userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  assignmentType VARCHAR(20) NOT NULL CHECK (assignmentType IN ('all', 'programme', 'action')),
-  assignmentValue TEXT, -- NULL si 'all', nom du programme si 'programme', ID de l'action si 'action'
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  createdBy INTEGER REFERENCES users(id)
+  userid INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  assignmenttype VARCHAR(20) NOT NULL CHECK (assignmenttype IN ('all', 'programme', 'action')),
+  assignmentvalue TEXT, -- NULL si 'all', nom du programme si 'programme', ID de l'action si 'action'
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  createdby INTEGER REFERENCES users(id)
 );
 
 -- ============================================================================
@@ -36,38 +36,38 @@ CREATE TABLE IF NOT EXISTS actions (
   id SERIAL PRIMARY KEY,
   -- Informations de base
   programme VARCHAR(255) NOT NULL,
-  sousDirection VARCHAR(255),
+  sousdirection VARCHAR(255),
   action VARCHAR(255),
   activite TEXT,
   intitule TEXT NOT NULL,
   
   -- Résultats et indicateurs
-  resultatsAttendus TEXT,
-  indicateursCibles TEXT,
-  indicateursResultats DECIMAL(5,2),
+  resultatsattendus TEXT,
+  indicateurscibles TEXT,
+  indicateursresultats DECIMAL(5,2),
   
   -- Responsabilité et échéance
   responsable VARCHAR(255) NOT NULL,
   echeance DATE NOT NULL,
   
   -- État d'exécution
-  tauxPhysique DECIMAL(5,2) DEFAULT 0 CHECK (tauxPhysique >= 0 AND tauxPhysique <= 100),
-  tauxFinancier DECIMAL(5,2) DEFAULT 0 CHECK (tauxFinancier >= 0 AND tauxFinancier <= 100),
+  tauxphysique DECIMAL(5,2) DEFAULT 0 CHECK (tauxphysique >= 0 AND tauxphysique <= 100),
+  tauxfinancier DECIMAL(5,2) DEFAULT 0 CHECK (tauxfinancier >= 0 AND tauxfinancier <= 100),
   statut VARCHAR(50) NOT NULL DEFAULT 'À démarrer' CHECK (statut IN ('À démarrer', 'En cours', 'En retard', 'Achevé')),
   
   -- Budget
-  budgetTotal DECIMAL(15,2),
-  budgetPrevisionnel DECIMAL(15,2),
-  budgetT1 DECIMAL(15,2),
-  budgetT2 DECIMAL(15,2),
-  budgetT3 DECIMAL(15,2),
-  budgetT4 DECIMAL(15,2),
+  budgettotal DECIMAL(15,2),
+  budgetprevisionnel DECIMAL(15,2),
+  budgett1 DECIMAL(15,2),
+  budgett2 DECIMAL(15,2),
+  budgett3 DECIMAL(15,2),
+  budgett4 DECIMAL(15,2),
   
   -- Commentaires et audit
   commentaire TEXT,
-  lastModifiedBy INTEGER REFERENCES users(id),
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  lastmodifiedby INTEGER REFERENCES users(id),
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================================================
@@ -75,13 +75,13 @@ CREATE TABLE IF NOT EXISTS actions (
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS historique (
   id SERIAL PRIMARY KEY,
-  actionId INTEGER NOT NULL REFERENCES actions(id) ON DELETE CASCADE,
-  userId INTEGER NOT NULL REFERENCES users(id),
-  champModifie VARCHAR(100) NOT NULL,
-  ancienneValeur TEXT,
-  nouvelleValeur TEXT,
+  actionid INTEGER NOT NULL REFERENCES actions(id) ON DELETE CASCADE,
+  userid INTEGER NOT NULL REFERENCES users(id),
+  champmodifie VARCHAR(100) NOT NULL,
+  anciennevaleur TEXT,
+  nouvellevaleur TEXT,
   commentaire TEXT,
-  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================================================
@@ -91,11 +91,12 @@ CREATE TABLE IF NOT EXISTS historique (
 -- Index sur la table users
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_isactive ON users(isactive);
 
--- Index sur la table userAssignments
-CREATE INDEX IF NOT EXISTS idx_user_assignments_user ON userAssignments(userId);
-CREATE INDEX IF NOT EXISTS idx_user_assignments_type ON userAssignments(assignmentType);
-CREATE INDEX IF NOT EXISTS idx_user_assignments_value ON userAssignments(assignmentValue);
+-- Index sur la table userassignments
+CREATE INDEX IF NOT EXISTS idx_user_assignments_user ON userassignments(userid);
+CREATE INDEX IF NOT EXISTS idx_user_assignments_type ON userassignments(assignmenttype);
+CREATE INDEX IF NOT EXISTS idx_user_assignments_value ON userassignments(assignmentvalue);
 
 -- Index sur la table actions
 CREATE INDEX IF NOT EXISTS idx_actions_programme ON actions(programme);
@@ -103,22 +104,21 @@ CREATE INDEX IF NOT EXISTS idx_actions_statut ON actions(statut);
 CREATE INDEX IF NOT EXISTS idx_actions_responsable ON actions(responsable);
 CREATE INDEX IF NOT EXISTS idx_actions_echeance ON actions(echeance);
 CREATE INDEX IF NOT EXISTS idx_actions_action ON actions(action);
-CREATE INDEX IF NOT EXISTS idx_actions_activite ON actions(activite);
 
 -- Index sur la table historique
-CREATE INDEX IF NOT EXISTS idx_historique_action ON historique(actionId);
-CREATE INDEX IF NOT EXISTS idx_historique_user ON historique(userId);
-CREATE INDEX IF NOT EXISTS idx_historique_created_at ON historique(createdAt);
+CREATE INDEX IF NOT EXISTS idx_historique_action ON historique(actionid);
+CREATE INDEX IF NOT EXISTS idx_historique_user ON historique(userid);
+CREATE INDEX IF NOT EXISTS idx_historique_created_at ON historique(createdat);
 
 -- ============================================================================
 -- 6. FONCTIONS ET TRIGGERS
 -- ============================================================================
 
--- Fonction pour mettre à jour automatiquement updatedAt
+-- Fonction pour mettre à jour automatiquement updatedat
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updatedAt = CURRENT_TIMESTAMP;
+    NEW.updatedat = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ LANGUAGE 'plpgsql';
@@ -140,16 +140,16 @@ CREATE TRIGGER update_actions_updated_at
 -- 7. COMMENTAIRES DE DOCUMENTATION
 -- ============================================================================
 COMMENT ON TABLE users IS 'Utilisateurs du système (Admin, Ministre, Directeur)';
-COMMENT ON TABLE userAssignments IS 'Assignations des utilisateurs aux programmes ou actions';
+COMMENT ON TABLE userassignments IS 'Assignations des utilisateurs aux programmes ou actions';
 COMMENT ON TABLE actions IS 'Actions du Plan d''Action du Ministère (PAM) 2026';
 COMMENT ON TABLE historique IS 'Historique complet des modifications des actions';
 
 COMMENT ON COLUMN actions.action IS 'Colonne Actions du document PDF';
 COMMENT ON COLUMN actions.activite IS 'Colonne Activités du document PDF';
-COMMENT ON COLUMN actions.resultatsAttendus IS 'Résultats attendus de l''action';
-COMMENT ON COLUMN actions.indicateursCibles IS 'Indicateurs - Cibles (ex: Taux d''avancement = 99%)';
-COMMENT ON COLUMN actions.indicateursResultats IS 'Indicateurs - Résultats en pourcentage';
-COMMENT ON COLUMN actions.budgetPrevisionnel IS 'Budget prévisionnel LFI 2026';
+COMMENT ON COLUMN actions.resultatsattendus IS 'Résultats attendus de l''action';
+COMMENT ON COLUMN actions.indicateurscibles IS 'Indicateurs - Cibles (ex: Taux d''avancement = 99%)';
+COMMENT ON COLUMN actions.indicateursresultats IS 'Indicateurs - Résultats en pourcentage';
+COMMENT ON COLUMN actions.budgetprevisionnel IS 'Budget prévisionnel LFI 2026';
 
 -- ============================================================================
 -- 8. UTILISATEUR ADMIN PAR DÉFAUT (TEMPORAIRE)
@@ -159,7 +159,7 @@ COMMENT ON COLUMN actions.budgetPrevisionnel IS 'Budget prévisionnel LFI 2026';
 -- Password: admin123
 -- ⚠️ IMPORTANT: Changez ce mot de passe après le premier déploiement !
 
-INSERT INTO users (username, passwordHash, fullName, role) 
+INSERT INTO users (username, passwordhash, fullname, role) 
 VALUES ('admin', '$2b$10$rBV2KJ9k3HhXQVxDfZQf5.6kxJZ4pKGqmJ3XRgQl5KGMqxqFZqYqK', 'Administrateur Système', 'Admin')
 ON CONFLICT (username) DO NOTHING;
 

@@ -84,8 +84,6 @@ async function exportData() {
     sqlOutput += `-- Date: ${new Date().toISOString()}\n`;
     sqlOutput += `-- ============================================================================\n\n`;
     sqlOutput += `-- IMPORTANT: Ce script doit être exécuté APRÈS production_schema.sql\n\n`;
-    sqlOutput += `-- Désactiver temporairement les triggers et contraintes pour l'import\n`;
-    sqlOutput += `SET session_replication_role = 'replica';\n\n`;
 
     // 1. Export des utilisateurs (sauf admin par défaut)
     console.log('📊 Export des utilisateurs...');
@@ -106,7 +104,7 @@ async function exportData() {
       ORDER BY id
     `);
     console.log(`   → ${assignmentsResult.rows.length} assignation(s) trouvée(s)`);
-    sqlOutput += generateInsert('userAssignments', assignmentsResult.rows);
+    sqlOutput += generateInsert('userassignments', assignmentsResult.rows);
 
     // 3. Export des actions
     console.log('📊 Export des actions...');
@@ -132,10 +130,6 @@ async function exportData() {
     `);
     console.log(`   → ${historiqueResult.rows.length} entrée(s) d'historique trouvée(s)`);
     sqlOutput += generateInsert('historique', historiqueResult.rows);
-
-    // Réactiver les contraintes
-    sqlOutput += `\n-- Réactiver les triggers et contraintes\n`;
-    sqlOutput += `SET session_replication_role = 'origin';\n\n`;
 
     // Réinitialiser les séquences
     sqlOutput += `-- ============================================================================\n`;

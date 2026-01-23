@@ -1,0 +1,450 @@
+/**
+ * Styles Mobile - Vue Accordéon pour Petit Écran
+ * Optimisé pour iPhone 14 Pro Max et autres mobiles
+ */
+
+/* ============================================================================
+   ACCORDÉONS MOBILE (Remplace les tabs sur petit écran)
+   ============================================================================ */
+
+.detail-view {
+  position: relative;
+}
+
+/* Masquer les tabs normales sur mobile */
+@media (max-width: 768px) {
+  .tabs {
+    display: none !important;
+  }
+
+  .tab-content {
+    display: none !important;
+  }
+
+  /* Container pour les accordéons */
+  .accordion-container {
+    display: block !important;
+    margin-top: 1rem;
+  }
+
+  .accordion-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: linear-gradient(135deg, #4a9fd8 0%, #5cbfd9 100%);
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+  }
+
+  .accordion-header:active {
+    background: linear-gradient(135deg, #3a8fc8 0%, #4cafc9 100%);
+  }
+
+  .accordion-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .accordion-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+
+  .accordion-item.active .accordion-icon {
+    transform: rotate(180deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .accordion-item.active .accordion-content {
+    max-height: 3000px; /* Grande valeur pour conteneur de taille variable */
+  }
+
+  .accordion-body {
+    padding: 1rem;
+  }
+
+  /* Style des groupes de formulaire dans l'accordéon */
+  .accordion-body .form-group {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .accordion-body .form-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .accordion-body label {
+    display: block;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .accordion-body .value {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.6;
+    word-wrap: break-word;
+  }
+
+  /* Badges dans l'accordéon */
+  .accordion-body .badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  /* Liste des résultats */
+  .accordion-body .resultat-item {
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-left: 3px solid #4a9fd8;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+
+  /* Historique dans l'accordéon */
+  .accordion-body .historique-item {
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .accordion-body .historique-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .accordion-body .historique-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: #666;
+  }
+}
+
+/* ============================================================================
+   HEADER RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+
+  .detail-header h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.4;
+  }
+
+  .detail-actions {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .detail-actions button {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ============================================================================
+   CARTES D'ACTIONS RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .action-card {
+    padding: 1rem !important;
+  }
+
+  .action-card-header h4 {
+    font-size: 0.95rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .badges {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .badge {
+    font-size: 0.75rem !important;
+    padding: 0.35rem 0.65rem !important;
+  }
+
+  .action-meta {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* ============================================================================
+   MODAL RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  .modal-header {
+    padding: 1rem !important;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+    overflow-y: auto;
+    height: calc(100vh - 140px);
+  }
+
+  .modal-footer {
+    padding: 1rem !important;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+
+  /* Formulaire en accordéon dans le modal aussi */
+  .modal-body .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-body label {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-body input,
+  .modal-body select,
+  .modal-body textarea {
+    font-size: 1rem; /* Éviter le zoom iOS */
+    padding: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   DASHBOARD RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .programmes-list {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .programme-card {
+    padding: 1rem !important;
+  }
+
+  .programme-header h3 {
+    font-size: 1rem !important;
+  }
+}
+
+/* ============================================================================
+   NAVIGATION RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .breadcrumb {
+    font-size: 0.85rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .breadcrumb-separator {
+    display: none;
+  }
+
+  .breadcrumb-item {
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  .breadcrumb-item::after {
+    content: "›";
+    margin: 0 0.5rem;
+    color: #999;
+  }
+
+  .breadcrumb-item:last-child::after {
+    content: "";
+  }
+}
+
+/* ============================================================================
+   FILTRES RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .filters select,
+  .filters input {
+    width: 100% !important;
+    font-size: 1rem; /* Éviter le zoom iOS */
+  }
+
+  .filter-group {
+    width: 100% !important;
+  }
+}
+
+/* ============================================================================
+   HEADER PRINCIPAL RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+
+  .app-title {
+    font-size: 1.1rem !important;
+  }
+
+  .user-info {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+}
+
+/* ============================================================================
+   BOUTONS RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .btn {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .btn-group {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .btn-group button {
+    width: 100% !important;
+  }
+}
+
+/* ============================================================================
+   AMÉLIORATIONS TACTILES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Zone de touch plus grande */
+  button,
+  a,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Feedback tactile */
+  button:active,
+  .clickable:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+
+  /* Désactiver le zoom sur les inputs */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* Éviter le zoom automatique iOS */
+  }
+
+  /* Scroll plus fluide */
+  .modal-body,
+  .accordion-content {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================================================
+   TRANSITIONS FLUIDES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: rgba(74, 159, 216, 0.2);
+  }
+
+  .accordion-item,
+  .action-card,
+  button {
+    transition: all 0.2s ease;
+  }
+}
+
