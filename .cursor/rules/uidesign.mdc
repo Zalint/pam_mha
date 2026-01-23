@@ -1,0 +1,81 @@
+---
+alwaysApply: true
+---
+Référence de charte
+
+
+Le rendu doit évoquer une esthétique institutionnelle sénégalaise, sobre, crédible et orientée service public.
+
+Palette de couleurs autorisée
+
+Couleur principale : bleu eau institutionnel (#4a9fd8) - évoque l'eau, sobre et crédible
+
+Couleur secondaire : turquoise eau doux (#5cbfd9) - renforce la thématique hydraulique
+
+Couleurs de fond : blanc cassé, gris clair
+
+Couleur de texte : gris foncé / anthracite
+
+Couleur d'accent (optionnelle) : jaune sable discret
+
+Palette interdite
+
+❌ Bleu saturé vif (type SaaS, corporate tech, néon)
+
+❌ Violet, mauve, indigo
+
+❌ Vert (non aligné avec la mission eau/assainissement)
+
+❌ Dégradés technologiques (bleu/violet, néon, cyber)
+
+❌ Couleurs flashy ou "startup tech"
+
+Note : Les tons bleu clair et turquoise doux sont AUTORISÉS car ils évoquent naturellement l'eau et l'assainissement, mission principale du MHA.
+
+Intention visuelle
+
+Institutionnelle
+
+Sérieuse
+
+Lisible
+
+Accessible
+
+Alignée avec les thématiques eau, assainissement, service public, développement durable
+
+Typographie & mise en page
+
+Typographies sobres et lisibles
+
+Hiérarchie claire (titres, sous-titres, contenu)
+
+Espaces aérés
+
+Pas d’effets décoratifs inutiles
+
+Application stricte
+
+Ces règles s’appliquent à tous les écrans, composants et états UI :
+
+boutons
+
+formulaires
+
+dashboards
+
+headers / footers
+
+graphiques
+
+Aucune couleur ou style hors charte ne doit être introduit sans justification explicite.
+
+Contrôle
+
+Avant toute génération de code ou de design, l’agent doit :
+
+Définir explicitement la palette conforme à ces règles
+
+Vérifier qu’aucune couleur interdite n’est utilisée
+
+Appliquer la palette de manière cohérente à l’ensemble de l’interface

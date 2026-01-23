@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi PAM - Application Moderne</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Styles pour l'application moderne */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #2b3e50;
+        }
+
+        /* Header */
+        .app-header {
+            background: #2d8b6d;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .app-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: white;
+            padding: 0.75rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb a {
+            color: #2d8b6d;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #6c757d;
+        }
+
+        /* Container */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d8b6d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        /* Programmes Cards */
+        .programmes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .programme-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .programme-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .programme-card h3 {
+            color: #2d8b6d;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .programme-card .meta {
+            display: flex;
+            gap: 1rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .programme-card .progress {
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2d8b6d;
+            transition: width 0.3s;
+        }
+
+        /* Actions List */
+        .actions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .action-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .action-card h4 {
+            color: #2b3e50;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card .badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.physique {
+            background: #d4edff;
+            color: #0066cc;
+        }
+
+        .badge.financier {
+            background: #d4f4dd;
+            color: #1e7e34;
+        }
+
+        .badge.statut {
+            background: #fff4e0;
+            color: #d4a76a;
+        }
+
+        .action-card .meta {
+            display: flex;
+            gap: 1.5rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+        }
+
+        /* Detail View */
+        .detail-view {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .detail-header h2 {
+            color: #2d8b6d;
+            font-size: 1.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #2d8b6d;
+        }
+
+        .tab.active {
+            color: #2d8b6d;
+            border-bottom-color: #2d8b6d;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2b3e50;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-group .value {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            color: #2b3e50;
+        }
+
+        /* Filters */
+        .filters-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters-bar select,
+        .filters-bar input {
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2d8b6d;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e6b50;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2b3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #2d8b6d;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .programmes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app-container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <h1>Suivi des Plans d'Actions Ministériels - MHA</h1>
+        <div class="user-info">
+            <span>Administrateur</span>
+            <span class="badge statut">Admin</span>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="#dashboard">Dashboard</a>
+        <span>/</span>
+        <span id="breadcrumb-current">Programmes</span>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        <!-- Dashboard View -->
+        <div id="dashboard-view">
+            <h2 style="margin-bottom: 1.5rem; color: #2b3e50;">Tableau de bord</h2>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value">32</div>
+                    <div class="label">Actions totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">5</div>
+                    <div class="label">En retard</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">12</div>
+                    <div class="label">Achevées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">45%</div>
+                    <div class="label">Avancement moyen</div>
+                </div>
+            </div>
+
+            <!-- Programmes -->
+            <h3 style="margin: 2rem 0 1rem; color: #2b3e50;">Programmes</h3>
+            <div class="programmes-grid">
+                <div class="programme-card" onclick="showActions('PASEM')">
+                    <h3>📁 Programme d'Accès Sécurisé (PASEM)</h3>
+                    <div class="meta">
+                        <span>8 actions</span>
+                        <span>•</span>
+                        <span>60% physique</span>
+                        <span>•</span>
+                        <span>45% financier</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="programme-card" onclick="showActions('AEP')">
+                    <h3>📁 Programme Intermédiaire AEP Dakar</h3>
+                    <div class="meta">
+                        <span>10 actions</span>
+                        <span>•</span>
+                        <span>30% physique</span>
+                        <span>•</span>
+                        <span>25% financier</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="programme-card" onclick="showActions('Gestion')">
+                    <h3>📁 Gestion des Ressources en Eau</h3>
+                    <div class="meta">
+                        <span>15 actions</span>
+                        <span>•</span>
+                        <span>45% physique</span>
+                        <span>•</span>
+                        <span>35% financier</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions View -->
+        <div id="actions-view" style="display: none;">
+            <button class="btn-back" onclick="showDashboard()">
+                ← Retour aux programmes
+            </button>
+            <h2 style="margin: 1rem 0; color: #2b3e50;">Actions - Programme PASEM</h2>
+            
+            <!-- Filters -->
+            <div class="filters-bar">
+                <select>
+                    <option>Tous les statuts</option>
+                    <option>En cours</option>
+                    <option>En retard</option>
+                    <option>Achevé</option>
+                </select>
+                <input type="text" placeholder="Rechercher...">
+                <button class="btn btn-primary">+ Nouvelle action</button>
+            </div>
+
+            <!-- Actions List -->
+            <div class="actions-list">
+                <div class="action-card" onclick="showDetail(1)">
+                    <div class="action-card-header">
+                        <div>
+                            <h4>🔧 Dessalement Eau de Mer</h4>
+                            <div class="badges">
+                                <span class="badge physique">50% physique</span>
+                                <span class="badge financier">45% financier</span>
+                                <span class="badge statut">En cours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="meta">
+                        <span>Responsable: D. Exploitation</span>
+                        <span>Échéance: 31/12/2026</span>
+                    </div>
+                </div>
+
+                <div class="action-card" onclick="showDetail(2)">
+                    <div class="action-card-header">
+                        <div>
+                            <h4>🔧 Renouvellement 310 km canalisations</h4>
+                            <div class="badges">
+                                <span class="badge physique">80% physique</span>
+                                <span class="badge financier">75% financier</span>
+                                <span class="badge statut">En cours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="meta">
+                        <span>Responsable: D. Exploitation</span>
+                        <span>Échéance: 31/12/2026</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="detail-view" style="display: none;">
+            <button class="btn-back" onclick="showActions('PASEM')">
+                ← Retour aux actions
+            </button>
+            
+            <div class="detail-view">
+                <div class="detail-header">
+                    <h2>Dessalement Eau de Mer</h2>
+                    <button class="btn btn-primary">Modifier</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('general')">Général</button>
+                    <button class="tab" onclick="switchTab('resultats')">Résultats attendus</button>
+                    <button class="tab" onclick="switchTab('indicateurs')">Indicateurs</button>
+                    <button class="tab" onclick="switchTab('budget')">Budget</button>
+                    <button class="tab" onclick="switchTab('historique')">Historique</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="tab-general" class="tab-content active">
+                    <div class="form-group">
+                        <label>Programme</label>
+                        <div class="value">Programme d'Accès Sécurisé à l'Eau Multiusages (PASEM)</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Action</label>
+                        <div class="value">Développement / Accès Sécurisé à l'Eau (DASE)</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Activité</label>
+                        <div class="value">PROJET DE RÉALISATION D'UNE UNITÉ DESSALEMENT EAU DE MER</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Responsable</label>
+                        <div class="value">Direction de l'Exploitation</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Échéance</label>
+                        <div class="value">31/12/2026</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <div class="value">
+                            <span class="badge statut">En cours</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-resultats" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">Résultats attendus</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.75rem; background: #f8f9fa; margin-bottom: 0.5rem; border-radius: 6px;">
+                            • Les travaux de conception-construction de l'usine de dessalement ont atteint un taux d'avancement physique global de 99%
+                        </li>
+                        <li style="padding: 0.75rem; background: #f8f9fa; margin-bottom: 0.5rem; border-radius: 6px;">
+                            • Les travaux de renouvellement de 316 km de canalisations ont atteint un taux d'avancement physique global de 85%
+                        </li>
+                        <li style="padding: 0.75rem; background: #f8f9fa; margin-bottom: 0.5rem; border-radius: 6px;">
+                            • Les travaux de télégestion ont atteint un taux d'avancement physique global de 50%
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="tab-indicateurs" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">Indicateurs</h3>
+                    <div class="form-group">
+                        <label>Cibles</label>
+                        <div class="value">Taux d'avancement physique global de l'usine = 99%</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Résultats</label>
+                        <div class="value">
+                            <span class="badge physique">50%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-budget" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">Budget</h3>
+                    <div class="form-group">
+                        <label>Budget prévisionnel (LFI 2026)</label>
+                        <div class="value" style="font-family: monospace; font-size: 1.125rem;">27,396,932,737 FCFA</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div class="form-group">
+                            <label>Trimestre 1</label>
+                            <div class="value" style="font-family: monospace;">3,160,000,000</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Trimestre 2</label>
+                            <div class="value" style="font-family: monospace;">4,561,000,000</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Trimestre 3</label>
+                            <div class="value" style="font-family: monospace;">7,625,500,000</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Trimestre 4</label>
+                            <div class="value" style="font-family: monospace;">12,050,432,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-historique" class="tab-content">
+                    <h3 style="margin-bottom: 1rem;">Historique des modifications</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px;">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">Modification du taux physique</div>
+                            <div style="font-size: 0.875rem; color: #6c757d;">Par Admin le 23/01/2026 à 14:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDashboard() {
+            document.getElementById('dashboard-view').style.display = 'block';
+            document.getElementById('actions-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('breadcrumb-current').textContent = 'Programmes';
+        }
+
+        function showActions(programme) {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('actions-view').style.display = 'block';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('breadcrumb-current').textContent = 'Programmes > Actions';
+        }
+
+        function showDetail(id) {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('actions-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'block';
+            document.getElementById('breadcrumb-current').textContent = 'Programmes > Actions > Détails';
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+

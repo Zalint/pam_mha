@@ -1,0 +1,336 @@
+/* ===== Système de notifications modernes ===== */
+/* Conforme à la charte institutionnelle sénégalaise */
+
+/* Container pour les toasts */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+}
+
+/* Toast individuel */
+.toast {
+  background: white;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid #2d8b6d;
+  min-width: 300px;
+}
+
+.toast.toast-success {
+  border-left-color: #2d8b6d; /* Vert institutionnel */
+}
+
+.toast.toast-error {
+  border-left-color: #c53030; /* Rouge sobre */
+}
+
+.toast.toast-warning {
+  border-left-color: #d69e2e; /* Jaune sable */
+}
+
+.toast.toast-info {
+  border-left-color: #4db8a8; /* Turquoise */
+}
+
+/* Icône du toast */
+.toast-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.toast-success .toast-icon {
+  background: #e6f4f0;
+  color: #2d8b6d;
+}
+
+.toast-error .toast-icon {
+  background: #fef2f2;
+  color: #c53030;
+}
+
+.toast-warning .toast-icon {
+  background: #fef5e7;
+  color: #d69e2e;
+}
+
+.toast-info .toast-icon {
+  background: #e6f7f5;
+  color: #4db8a8;
+}
+
+/* Contenu du toast */
+.toast-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-title {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.toast-message {
+  color: #4a5568;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Bouton de fermeture */
+.toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.toast-close:hover {
+  color: #4a5568;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.toast.toast-exit {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+/* ===== Modal moderne ===== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+  padding: 20px;
+}
+
+.modal-overlay.modal-exit {
+  animation: fadeOut 0.2s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.modal-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 500px;
+  width: 100%;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.modal-exit .modal-container {
+  animation: scaleOut 0.2s ease-in forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.modal-header {
+  padding: 24px 24px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.modal-success .modal-icon {
+  background: #e6f4f0;
+  color: #2d8b6d;
+}
+
+.modal-error .modal-icon {
+  background: #fef2f2;
+  color: #c53030;
+}
+
+.modal-warning .modal-icon {
+  background: #fef5e7;
+  color: #d69e2e;
+}
+
+.modal-info .modal-icon {
+  background: #e6f7f5;
+  color: #4db8a8;
+}
+
+.modal-confirm .modal-icon {
+  background: #e6f7f5;
+  color: #4db8a8;
+}
+
+.modal-header-content {
+  flex: 1;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 4px 0;
+}
+
+.modal-body {
+  padding: 16px 24px 24px;
+  color: #4a5568;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.modal-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.modal-btn-primary {
+  background: #2d8b6d;
+  color: white;
+}
+
+.modal-btn-primary:hover {
+  background: #267059;
+}
+
+.modal-btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.modal-btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+.modal-btn-danger {
+  background: #c53030;
+  color: white;
+}
+
+.modal-btn-danger:hover {
+  background: #9b2c2c;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  #toast-container {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+  
+  .toast {
+    min-width: auto;
+  }
+  
+  .modal-container {
+    margin: 0 20px;
+  }
+}
+

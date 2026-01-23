@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démo Notifications - Suivi PAM</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/notifications.css">
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-section h2 {
+            color: #2d8b6d;
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+        
+        .demo-section p {
+            color: #4a5568;
+            margin-bottom: 16px;
+        }
+        
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .demo-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .demo-btn-success {
+            background: #2d8b6d;
+            color: white;
+        }
+        
+        .demo-btn-success:hover {
+            background: #267059;
+        }
+        
+        .demo-btn-error {
+            background: #c53030;
+            color: white;
+        }
+        
+        .demo-btn-error:hover {
+            background: #9b2c2c;
+        }
+        
+        .demo-btn-warning {
+            background: #d69e2e;
+            color: white;
+        }
+        
+        .demo-btn-warning:hover {
+            background: #b7791f;
+        }
+        
+        .demo-btn-info {
+            background: #4db8a8;
+            color: white;
+        }
+        
+        .demo-btn-info:hover {
+            background: #3d9a8d;
+        }
+        
+        .demo-btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .demo-btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .header-demo {
+            background: #2d8b6d;
+            color: white;
+            padding: 24px;
+            text-align: center;
+            margin: -20px -20px 40px -20px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .header-demo h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .header-demo p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-section">
+            <div class="header-demo">
+                <h1>🎨 Système de Notifications Modernes</h1>
+                <p>Conforme à la charte institutionnelle sénégalaise</p>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📢 Toasts (Notifications)</h2>
+            <p>Notifications légères qui apparaissent en haut à droite et disparaissent automatiquement.</p>
+            <div class="demo-buttons">
+                <button class="demo-btn demo-btn-success" onclick="testSuccessToast()">
+                    ✓ Toast Succès
+                </button>
+                <button class="demo-btn demo-btn-error" onclick="testErrorToast()">
+                    ✕ Toast Erreur
+                </button>
+                <button class="demo-btn demo-btn-warning" onclick="testWarningToast()">
+                    ! Toast Attention
+                </button>
+                <button class="demo-btn demo-btn-info" onclick="testInfoToast()">
+                    i Toast Info
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>💬 Modals (Dialogues)</h2>
+            <p>Boîtes de dialogue modernes pour les actions importantes ou les confirmations.</p>
+            <div class="demo-buttons">
+                <button class="demo-btn demo-btn-info" onclick="testInfoModal()">
+                    Information
+                </button>
+                <button class="demo-btn demo-btn-success" onclick="testSuccessModal()">
+                    Succès
+                </button>
+                <button class="demo-btn demo-btn-error" onclick="testErrorModal()">
+                    Erreur
+                </button>
+                <button class="demo-btn demo-btn-warning" onclick="testWarningModal()">
+                    Attention
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>✅ Confirmations</h2>
+            <p>Modals de confirmation pour les actions critiques.</p>
+            <div class="demo-buttons">
+                <button class="demo-btn demo-btn-info" onclick="testConfirmAction()">
+                    Confirmer une action
+                </button>
+                <button class="demo-btn demo-btn-error" onclick="testConfirmDelete()">
+                    Confirmer une suppression
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎯 Tests avancés</h2>
+            <p>Fonctionnalités avancées du système de notifications.</p>
+            <div class="demo-buttons">
+                <button class="demo-btn demo-btn-secondary" onclick="testMultipleToasts()">
+                    Plusieurs toasts
+                </button>
+                <button class="demo-btn demo-btn-secondary" onclick="testLongMessage()">
+                    Message long
+                </button>
+                <button class="demo-btn demo-btn-secondary" onclick="testCustomTitle()">
+                    Titre personnalisé
+                </button>
+                <button class="demo-btn demo-btn-secondary" onclick="testPersistentToast()">
+                    Toast permanent
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section" style="background: #e6f7f5; border-left: 4px solid #4db8a8;">
+            <h2>ℹ️ Informations</h2>
+            <p><strong>Palette de couleurs :</strong></p>
+            <ul style="color: #4a5568;">
+                <li><strong>Vert institutionnel (#2d8b6d)</strong> : Succès, actions principales</li>
+                <li><strong>Turquoise (#4db8a8)</strong> : Information, actions secondaires</li>
+                <li><strong>Jaune sable (#d69e2e)</strong> : Attention, avertissements</li>
+                <li><strong>Rouge sobre (#c53030)</strong> : Erreur, actions destructives</li>
+            </ul>
+            <p><strong>Caractéristiques :</strong></p>
+            <ul style="color: #4a5568;">
+                <li>Animations fluides et modernes</li>
+                <li>Fermeture automatique ou manuelle</li>
+                <li>Support des messages multilignes</li>
+                <li>Responsive (adapté mobile)</li>
+                <li>Accessible (navigation clavier, ESC pour fermer)</li>
+            </ul>
+        </div>
+
+        <div class="demo-section" style="text-align: center;">
+            <a href="/index.html" style="color: #2d8b6d; text-decoration: none; font-weight: 500;">
+                ← Retour à l'application
+            </a>
+        </div>
+    </div>
+
+    <script src="/notifications.js"></script>
+    <script>
+        // ===== Tests des Toasts =====
+        
+        function testSuccessToast() {
+            showSuccess('Opération effectuée avec succès !');
+        }
+        
+        function testErrorToast() {
+            showError('Une erreur est survenue lors de l\'opération.');
+        }
+        
+        function testWarningToast() {
+            showWarning('Attention : cette action nécessite une validation.');
+        }
+        
+        function testInfoToast() {
+            showInfo('Nouvelles mises à jour disponibles.');
+        }
+        
+        // ===== Tests des Modals =====
+        
+        async function testInfoModal() {
+            await showAlert(
+                'Cette application utilise un système de notifications moderne conforme à la charte institutionnelle.',
+                'Information',
+                'info'
+            );
+        }
+        
+        async function testSuccessModal() {
+            await showAlert(
+                'Le Plan d\'Action Ministériel a été validé avec succès !',
+                'Validation réussie',
+                'success'
+            );
+        }
+        
+        async function testErrorModal() {
+            await showAlert(
+                'Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.',
+                'Erreur de connexion',
+                'error'
+            );
+        }
+        
+        async function testWarningModal() {
+            await showAlert(
+                'Certaines données n\'ont pas été sauvegardées. Assurez-vous de compléter tous les champs obligatoires.',
+                'Données incomplètes',
+                'warning'
+            );
+        }
+        
+        // ===== Tests des Confirmations =====
+        
+        async function testConfirmAction() {
+            const result = await confirmAction(
+                'Voulez-vous vraiment soumettre ce rapport ? Cette action ne pourra pas être annulée.',
+                'Confirmer la soumission'
+            );
+            
+            if (result) {
+                showSuccess('Rapport soumis avec succès !');
+            } else {
+                showInfo('Action annulée.');
+            }
+        }
+        
+        async function testConfirmDelete() {
+            const result = await confirmDelete(
+                'Cette action est irréversible. Toutes les données associées seront définitivement supprimées.'
+            );
+            
+            if (result) {
+                showSuccess('Élément supprimé.');
+            } else {
+                showInfo('Suppression annulée.');
+            }
+        }
+        
+        // ===== Tests Avancés =====
+        
+        function testMultipleToasts() {
+            showInfo('Premier toast...');
+            setTimeout(() => showSuccess('Deuxième toast !'), 500);
+            setTimeout(() => showWarning('Troisième toast.'), 1000);
+        }
+        
+        function testLongMessage() {
+            showInfo(
+                'Ceci est un message très long qui peut contenir plusieurs lignes.\n\n' +
+                'Il peut inclure des retours à la ligne et des informations détaillées.\n\n' +
+                'Le système gère automatiquement l\'affichage de ces messages longs.',
+                'Message détaillé'
+            );
+        }
+        
+        function testCustomTitle() {
+            showSuccess(
+                'Le système de suivi des Plans d\'Actions Ministériels est maintenant opérationnel.',
+                'Système initialisé ✓'
+            );
+        }
+        
+        function testPersistentToast() {
+            showToast(
+                'Ce toast ne disparaîtra pas automatiquement. Cliquez sur le X pour le fermer.',
+                'info',
+                0, // durée = 0 pour toast permanent
+                'Toast permanent'
+            );
+        }
+        
+        // Message de bienvenue
+        setTimeout(() => {
+            showInfo('Bienvenue dans la démo du système de notifications !', 'Démo');
+        }, 500);
+    </script>
+</body>
+</html>
+

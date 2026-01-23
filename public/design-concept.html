@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Conceptuel - Tableau PAM Complet</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Styles spécifiques pour le design conceptuel */
+        .design-container {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .design-title {
+            color: #2d8b6d;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-complete {
+            width: 100%;
+            min-width: 2800px;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        .table-complete thead {
+            background: #2d8b6d;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table-complete thead th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #1e6b50;
+            vertical-align: middle;
+        }
+        
+        .table-complete thead th.header-programme {
+            background: #2d8b6d;
+            width: 200px;
+        }
+        
+        .table-complete thead th.header-action {
+            background: #4db8a8;
+            width: 180px;
+        }
+        
+        .table-complete thead th.header-group {
+            background: #2d8b6d;
+            text-align: center;
+        }
+        
+        .table-complete thead th.header-sub {
+            background: #1e6b50;
+            font-size: 10px;
+            text-align: center;
+            padding: 8px 4px;
+        }
+        
+        .table-complete tbody td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+        
+        .table-complete tbody tr:nth-child(even) {
+            background: #ffffff;
+        }
+        
+        .table-complete tbody tr:nth-child(odd) {
+            background: #f8f9fa;
+        }
+        
+        .table-complete tbody tr:hover {
+            background: #e9ecef;
+        }
+        
+        .cell-programme {
+            background: #2d8b6d;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .cell-action {
+            background: #4db8a8;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .cell-number {
+            text-align: right;
+            font-family: monospace;
+        }
+        
+        .cell-center {
+            text-align: center;
+        }
+        
+        .badge-percent {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 10px;
+        }
+        
+        .badge-percent.low {
+            background: #ffe0e0;
+            color: #d32f2f;
+        }
+        
+        .badge-percent.medium {
+            background: #fff4e0;
+            color: #d4a76a;
+        }
+        
+        .badge-percent.high {
+            background: #d4edff;
+            color: #0066cc;
+        }
+        
+        .badge-percent.complete {
+            background: #d4f4dd;
+            color: #1e7e34;
+        }
+        
+        .fixed-left {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+        
+        .fixed-left-2 {
+            position: sticky;
+            left: 200px;
+            z-index: 5;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+        
+        .note {
+            background: #fff4e0;
+            border-left: 4px solid #d4a76a;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .note-title {
+            font-weight: 600;
+            color: #2b3e50;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="design-container">
+        <h1 class="design-title">Design Conceptuel - Tableau de Suivi PAM Complet</h1>
+        
+        <div class="note">
+            <div class="note-title">📋 Note de Design</div>
+            <p>Ce design correspond exactement à la structure du document PDF "MHA Matrice SE-EXECUTION-PAM 2026".</p>
+            <p><strong>Caractéristiques :</strong></p>
+            <ul>
+                <li>Colonnes fixes à gauche (Programmes, Actions) pour navigation</li>
+                <li>Scroll horizontal pour voir toutes les colonnes</li>
+                <li>Fusion verticale des cellules pour les groupes</li>
+                <li>Badges colorés pour les pourcentages</li>
+                <li>Formatage des nombres avec séparateurs</li>
+            </ul>
+        </div>
+        
+        <div class="table-wrapper">
+            <table class="table-complete">
+                <thead>
+                    <tr>
+                        <th class="header-programme fixed-left" rowspan="2">PROGRAMMES</th>
+                        <th class="header-action fixed-left-2" rowspan="2">ACTIONS</th>
+                        <th rowspan="2">ACTIVITÉS</th>
+                        <th rowspan="2">RÉSULTATS ATTENDUS</th>
+                        <th class="header-group" colspan="2">INDICATEURS</th>
+                        <th rowspan="2">BUDGET PRÉVISIONNEL<br>(LFI 2026)</th>
+                        <th rowspan="2">ÉCHÉANCE</th>
+                        <th class="header-group" colspan="2">ÉTAT D'EXÉCUTION</th>
+                        <th rowspan="2">COMMENTAIRES</th>
+                        <th class="header-group" colspan="4">PLAN D'ENGAGEMENT<br>(Plan de décaissement trimestriel)</th>
+                        <th rowspan="2">ACTIONS</th>
+                    </tr>
+                    <tr>
+                        <th class="header-sub">Cibles</th>
+                        <th class="header-sub">Résultats %</th>
+                        <th class="header-sub">Physique (%)</th>
+                        <th class="header-sub">Financière (%)</th>
+                        <th class="header-sub">Trimestre 1</th>
+                        <th class="header-sub">Trimestre 2</th>
+                        <th class="header-sub">Trimestre 3</th>
+                        <th class="header-sub">Trimestre 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Exemple de données -->
+                    <tr>
+                        <td class="cell-programme fixed-left" rowspan="8">Programme d'Accès Sécurisé à l'Eau Multiusages (PASEM)</td>
+                        <td class="cell-action fixed-left-2" rowspan="8">Développement / Accès Sécurisé à l'Eau (DASE)</td>
+                        <td rowspan="8">PROJET DE RÉALISATION D'UNE UNITÉ DESSALEMENT EAU DE MER</td>
+                        <td>Les travaux de conception-construction de l'usine de dessalement ont atteint un taux d'avancement physique global de 99%</td>
+                        <td>Taux d'avancement physique global de l'usine = 99%</td>
+                        <td class="cell-center">-</td>
+                        <td class="cell-number" rowspan="8">27,396,932,737</td>
+                        <td class="cell-center" rowspan="8">-</td>
+                        <td class="cell-center" rowspan="8">-</td>
+                        <td class="cell-center" rowspan="8">-</td>
+                        <td rowspan="8">-</td>
+                        <td class="cell-number">3,160,000,000</td>
+                        <td class="cell-number">4,561,000,000</td>
+                        <td class="cell-number">7,625,500,000</td>
+                        <td class="cell-number">12,050,432,000</td>
+                        <td class="cell-center" rowspan="8">
+                            <button class="btn btn-small btn-primary">Modifier</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Les travaux de renouvellement de 316 km de canalisations du réseau de distribution de Dakar ont atteint un taux d'avancement physique global de 85%</td>
+                        <td>Taux d'avancement physique global des travaux de renouvellement = 85%</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>Les travaux de télégestion ont atteint un taux d'avancement physique global de 50%</td>
+                        <td>Taux d'avancement physique global des travaux de télégestion = 50%</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>Les travaux de renouvellement de 35.000 branchements ont atteint un taux d'avancement physique global de 30%</td>
+                        <td>Taux d'avancement physique global des travaux de renouvellement de branchements = 30%</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>La réception provisoire des travaux de reconstruction du centre de santé est prononcée</td>
+                        <td>Réception provisoire prononcée = OUI</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>La réalisation de l'usine à glace est effective</td>
+                        <td>Usine de glace mise en service = Oui</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>L'acquisition de tricycles isothermes est effective</td>
+                        <td>Tricycles remis aux bénéficiaires = Oui</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    <tr>
+                        <td>Le récif artificiel est construit</td>
+                        <td>Travaux du récif artificiel réceptionnés = Oui</td>
+                        <td class="cell-center">-</td>
+                    </tr>
+                    
+                    <!-- Autre exemple -->
+                    <tr>
+                        <td class="cell-programme fixed-left" rowspan="1">Programme de Renforcement des Systèmes d'Alimentation en Eau Potable</td>
+                        <td class="cell-action fixed-left-2" rowspan="1">PISEA /SONES</td>
+                        <td>PROGRAMME DE RENFORCEMENT DES SYSTÈMES D'ALIMENTATION EN EAU POTABLE DE TROIS VILLES : SAINT LOUIS, KAOLACK ET KOLDA - DON</td>
+                        <td>18.300 branchements sociaux sont réalisés dans tout le périmètre affermé</td>
+                        <td>Nombre de branchements sociaux réalisés dans le cadre de ce projet = 18.300</td>
+                        <td class="cell-center">-</td>
+                        <td class="cell-number">1,115,126,900</td>
+                        <td class="cell-center">-</td>
+                        <td class="cell-center">-</td>
+                        <td class="cell-center">-</td>
+                        <td>-</td>
+                        <td class="cell-number">1,115,126,900</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-center">
+                            <button class="btn btn-small btn-primary">Modifier</button>
+                        </td>
+                    </tr>
+                    
+                    <!-- Exemple avec pourcentages -->
+                    <tr>
+                        <td class="cell-programme fixed-left" rowspan="1">Gestion des Ressources en Eau</td>
+                        <td class="cell-action fixed-left-2" rowspan="1">DGPRE</td>
+                        <td>Réhabilitation de la digue du Barrage du Diama</td>
+                        <td>Réhabilitation de 5 km de digue dans le réservoir du Diama</td>
+                        <td>Taux d'avancement physique = 60%</td>
+                        <td class="cell-center">
+                            <span class="badge-percent high">60%</span>
+                        </td>
+                        <td class="cell-number">367,000,000</td>
+                        <td class="cell-center">30/06/2026</td>
+                        <td class="cell-center">
+                            <span class="badge-percent high">60%</span>
+                        </td>
+                        <td class="cell-center">
+                            <span class="badge-percent medium">52%</span>
+                        </td>
+                        <td>Trimestre 2 - En cours</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-number">367,000,000</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-number">-</td>
+                        <td class="cell-center">
+                            <button class="btn btn-small btn-primary">Modifier</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="note" style="margin-top: 20px;">
+            <div class="note-title">🎨 Légende des Badges</div>
+            <p>
+                <span class="badge-percent low">0-25%</span>
+                <span class="badge-percent medium">26-50%</span>
+                <span class="badge-percent high">51-75%</span>
+                <span class="badge-percent complete">76-100%</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

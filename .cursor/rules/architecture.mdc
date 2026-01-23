@@ -1,0 +1,249 @@
+---
+alwaysApply: true
+---
+## 🖥️ Backend - Serveur (Node.js + Express)
+
+### Rôle du framework backend (Express)
+
+Le backend fournit :
+- le **routing** des endpoints REST ;
+- le **parsing** des requêtes (JSON) ;
+- l’enchaînement des **middlewares** (auth → validation → handler) ;
+- une organisation modulaire (routes par domaine) ;
+- le service éventuel des fichiers statiques (frontend/PWA).
+
+### Point d’entrée du serveur (`server.js`)
+
+Le point d’entrée doit :
+1. charger les variables d’environnement ;
+2. configurer les middlewares globaux ;
+3. servir les ressources statiques (si applicable) ;
+4. monter les routes API par modules ;
+5. gérer les erreurs (404, erreurs applicatives) ;
+6. démarrer le serveur sur le port configuré.
+
+---
+
+## ⚙️ Configuration
+
+### Objectif
+
+La configuration est séparée du code et dépend de l’environnement (dev / staging / prod).  
+Aucun secret n’est committé.
+
+### Variables d’environnement
+
+Les variables couvrent :
+- **PostgreSQL** : host, port, databaseName, user, password ;
+- **JWT** : secret, expiration ;
+- **API externe** : apiKey, options d’activation ;
+- **Serveur** : port, environment, publicUrl ;
+- **Options** : corsAllowedOrigins, logs, etc.
+
+### Gestion des secrets
+
+- `.env` en local (ignoré par git)
+- `.env.example` comme documentation
+- secrets injectés en production
+
+---
+
+## 🗄️ Base de données (PostgreSQL)
+
+### Objectif
+
+La base stocke :
+- les **utilisateurs** ;
+- les **données métier** ;
+- les **relations** ;
+- les champs d’audit.
+
+### Convention stricte de nommage
+
+- **Tables en camelCase**
+- **Colonnes en camelCase**
+- Aucun snake_case, même en SQL
+
+### Schéma générique
+
+- Table `users`
+  - `id`
+  - `username`
+  - `passwordHash`
+  - `role`
+  - `createdAt`
+  - `updatedAt`
+
+- Table principale `{{mainTable}}`
+  - champs métier obligatoires
+  - champs optionnels
+  - `createdBy`
+  - `createdAt`
+  - `updatedAt`
+
+### Performance
+
+- Index sur les champs utilisés pour :
+  - filtres,
+  - tris,
+  - relations.
+
+---
+
+## 📦 Modèles
+
+### Objectif
+
+Les modèles :
+- encapsulent l’accès aux données ;
+- exposent des méthodes CRUD ;
+- fournissent des requêtes filtrées ;
+- retournent des objets **déjà au format camelCase**.
+
+### Règles de conception
+
+- Aucune logique UI
+- Requêtes sécurisées
+- Aucun mapping de nommage (camelCase partout)
+
+---
+
+## 🛡️ Middleware
+
+### Objectif
+
+Les middlewares gèrent :
+- l’authentification interne (JWT) ;
+- l’authentification externe (x-api-key) ;
+- le RBAC ;
+- la validation des entrées ;
+- les politiques transverses (logs, rate limit).
+
+---
+
+## 🛣️ Routes API
+
+### Conventions globales
+
+- Préfixe : `/api`
+- Ressources au pluriel
+- JSON en camelCase
+- Verbes HTTP standards
+
+---
+
+## 🔐 Deux surfaces d’API
+
+### API interne (Frontend / PWA)
+
+- Authentification : **JWT**
+- Préfixe : `/api/...`
+
+### API externe (Intégrations)
+
+- Authentification : **x-api-key**
+- Aucune session
+- Préfixe : `/api/external/...`
+
+### Règle clé
+
+👉 **Toute route métier interne a une version externe équivalente**, avec la même structure et les mêmes champs.
+
+---
+
+## 🧱 Logique métier
+
+- Une seule logique métier
+- Deux mécanismes d’accès :
+  - JWT (interne)
+  - x-api-key (externe)
+- Aucune duplication métier
+
+---
+
+## 🎨 Frontend (JavaScript + PWA)
+
+### Objectif
+
+Le frontend fournit :
+- une page de login ;
+- une page principale ;
+- une logique d’appels API centralisée ;
+- une gestion simple de l’état ;
+- une expérience PWA installable.
+
+### Convention de nommage
+
+- Variables JS en camelCase
+- Objets API en camelCase
+- Aucun mapping snake ↔ camel
+
+---
+
+## ⚠️ Recommandations techniques obligatoires
+
+### 1) Gestion des dates & timezone
+
+- Éviter toute logique dépendante du timezone local
+- Dates manipulées sous forme **explicite**
+- Séparer calcul (backend / SQL) et affichage (frontend)
+
+### 2) Format de date unique
+
+- **YYYY-MM-DD**, partout, sans exception
+
+### 3) Sécurité XSS
+
+- Toujours échapper les entrées utilisateur avant affichage
+- Aucun HTML injecté depuis une donnée utilisateur non maîtrisée
+
+---
+
+## 🔄 Flux de données
+
+### Interne (JWT)
+
+1. Login
+2. Vérification DB
+3. JWT retourné
+4. Stockage client
+5. Appels API protégés
+
+### Externe (x-api-key)
+
+1. Appel `/api/external/...`
+2. Vérification `x-api-key`
+3. Validation
+4. Logique métier
+5. Réponse JSON
+
+---
+
+## 🔒 Sécurité
+
+- JWT avec expiration (interne)
+- x-api-key obligatoire (externe)
+- Hash des mots de passe uniquement
+- Requêtes SQL paramétrées
+- Protection XSS systématique
+- CORS contrôlé
+- Secrets hors du code
+
+---
+
+## ✅ Règles non négociables (résumé)
+
+- **JavaScript partout**
+- **camelCase partout**
+- **JWT pour le frontend**
+- **x-api-key pour l’externe**
+- **YYYY-MM-DD pour les dates**
+- **XSS protégé systématiquement**
+- **Une seule logique métier**
+- **PWA obligatoire**
+
+Ces règles constituent le **socle d’architecture** et s’appliquent à **toutes les applications** construites sur ce modèle.
+
+---
+alwaysApply: true
+---
