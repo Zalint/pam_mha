@@ -40,15 +40,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialiser les événements
   initEventListeners();
+  initShell();
 
   // Charger les données (d'abord les actions, puis les programmes pour calculer les stats)
   await loadActions();
   await loadStatistics();
   await loadProgrammes();
-  
+  updateNavCounts();
+
   // Afficher le dashboard par défaut
   showView('dashboard');
 });
+
+/**
+ * Recharge toutes les données et rafraîchit la vue courante.
+ * Exposé globalement pour import-export.js (après import / restauration).
+ */
+window.refreshAppData = async function refreshAppData() {
+  await loadActions();
+  await loadStatistics();
+  await loadProgrammes();
+  updateNavCounts();
+  if (AppState.view === 'actions') renderActionsList();
+};
 
 // ===== Événements =====
 
@@ -114,6 +128,16 @@ function initEventListeners() {
     openActionModal();
   });
 
+  // Export xlsx de la vue Actions courante (filtres appliqués) — accessible à tous
+  document.getElementById('exportActionsBtn')?.addEventListener('click', () => {
+    if (!window.ImportExport) return;
+    window.ImportExport.doExport({
+      programme: AppState.currentProgramme || undefined,
+      statut: AppState.filters.statut || undefined,
+      search: AppState.filters.search || undefined,
+    });
+  });
+
   // Bouton modifier dans détail
   document.getElementById('editActionBtn')?.addEventListener('click', () => {
     if (AppState.currentAction) {
@@ -154,11 +178,18 @@ function initEventListeners() {
 
 function showView(view, param = null) {
   AppState.view = view;
-  
+
   // Masquer toutes les vues
-  document.getElementById('dashboard-view').style.display = 'none';
-  document.getElementById('actions-view').style.display = 'none';
-  document.getElementById('detail-view').style.display = 'none';
+  ['dashboard-view', 'actions-view', 'detail-view', 'import-view', 'versions-view'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Élément de navigation actif (le détail reste sous "Actions")
+  document.querySelectorAll('.nav-item[data-view]').forEach((n) => {
+    const v = n.getAttribute('data-view');
+    n.classList.toggle('active', v === view || (view === 'detail' && v === 'actions'));
+  });
 
   // Mettre à jour le breadcrumb
   const breadcrumb = document.getElementById('breadcrumb-current');
@@ -171,28 +202,41 @@ function showView(view, param = null) {
       separator.style.display = 'none';
       break;
 
-    case 'actions':
+    case 'actions': {
       document.getElementById('actions-view').style.display = 'block';
       AppState.currentProgramme = param;
       const programmeName = param || 'Tous les programmes';
       const actionsTitleEl = document.getElementById('actionsTitle');
-      if (actionsTitleEl) {
-        actionsTitleEl.textContent = `Actions - ${programmeName}`;
-      }
-      breadcrumb.textContent = `Programmes > Actions`;
+      if (actionsTitleEl) actionsTitleEl.textContent = `Actions — ${programmeName}`;
+      breadcrumb.textContent = 'Programmes / Actions';
       separator.style.display = 'inline';
       renderActionsList();
       break;
+    }
 
     case 'detail':
       document.getElementById('detail-view').style.display = 'block';
-      if (param) {
-        loadActionDetail(param);
-      }
-      breadcrumb.textContent = 'Programmes > Actions > Détails';
+      if (param) loadActionDetail(param);
+      breadcrumb.textContent = 'Programmes / Actions / Détails';
       separator.style.display = 'inline';
       break;
+
+    case 'import':
+      document.getElementById('import-view').style.display = 'block';
+      breadcrumb.textContent = 'Import / Export';
+      separator.style.display = 'none';
+      break;
+
+    case 'versions':
+      document.getElementById('versions-view').style.display = 'block';
+      breadcrumb.textContent = 'Versions';
+      separator.style.display = 'none';
+      if (window.ImportExport) window.ImportExport.renderVersions();
+      break;
   }
+
+  closeSidebar();
+  window.scrollTo({ top: 0, behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
 }
 
 // Fonction globale pour la navigation
@@ -219,9 +263,9 @@ async function loadStatistics() {
     document.getElementById('statAcheve').textContent = stats.acheve;
     document.getElementById('statPhysique').textContent = stats.tauxAvancementPhysique + '%';
     document.getElementById('statFinancier').textContent = stats.tauxAvancementFinancier + '%';
-    
-    // Enrichir les cards avec des détails
-    enrichStatCards();
+
+    // Graphiques du tableau de bord (remplace les anciens panneaux à emojis)
+    renderDashboardCharts();
   } catch (error) {
     console.error('Erreur chargement statistiques:', error);
   }
@@ -382,29 +426,20 @@ function renderProgrammes() {
     return { name: prog, actions: actionsProg, stats };
   });
 
+  const folderSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+
   grid.innerHTML = programmesData.map((prog, index) => `
     <div class="programme-card" data-programme="${escapeHtml(prog.name)}" data-index="${index}">
-      <div class="programme-header">
-        <h3 class="programme-title">📁 ${escapeHtml(prog.name)}</h3>
-        <div class="programme-meta">
-          <span>${prog.actions.length} action${prog.actions.length > 1 ? 's' : ''}</span>
-        </div>
+      <div class="programme-title">
+        <span class="programme-icon">${folderSvg}</span>
+        <span>${escapeHtml(prog.name)}</span>
       </div>
+      <div class="programme-meta">${prog.actions.length} action${prog.actions.length > 1 ? 's' : ''}</div>
       <div class="programme-stats">
-        <div class="programme-stat">
-          <span class="programme-stat-label">Physique</span>
-          <span class="programme-stat-value">${prog.stats.physique.toFixed(1)}%</span>
-        </div>
-        <div class="programme-stat">
-          <span class="programme-stat-label">Financier</span>
-          <span class="programme-stat-value">${prog.stats.financier.toFixed(1)}%</span>
-        </div>
+        <div class="programme-stat"><div class="label">Physique</div><div class="value">${prog.stats.physique.toFixed(1)}%</div></div>
+        <div class="programme-stat"><div class="label">Financier</div><div class="value">${prog.stats.financier.toFixed(1)}%</div></div>
       </div>
-      <div class="progress-bar-container">
-        <div class="progress-bar ${prog.stats.physique < 25 ? 'danger' : prog.stats.physique < 50 ? 'warning' : 'success'}" 
-             style="width: ${Math.min(100, Math.max(0, prog.stats.physique))}%">
-        </div>
-      </div>
+      <div class="progress"><span style="width: ${Math.min(100, Math.max(0, prog.stats.physique))}%"></span></div>
     </div>
   `).join('');
   
@@ -444,59 +479,80 @@ function calculateProgrammeStats(actions) {
 
 function renderActionsList() {
   const list = document.getElementById('actionsList');
-  
-  let filteredActions = AppState.actions;
-  
-  // Filtrer par programme
-  if (AppState.currentProgramme) {
-    filteredActions = filteredActions.filter(a => a.programme === AppState.currentProgramme);
-  }
-  
-  // Filtrer par statut
-  if (AppState.filters.statut) {
-    filteredActions = filteredActions.filter(a => a.statut === AppState.filters.statut);
-  }
-  
-  // Filtrer par recherche
+  if (!AppState.actionsSort) AppState.actionsSort = { key: 'sortindex', dir: 1 };
+
+  let rows = AppState.actions.slice();
+  if (AppState.currentProgramme) rows = rows.filter(a => a.programme === AppState.currentProgramme);
+  if (AppState.filters.statut) rows = rows.filter(a => a.statut === AppState.filters.statut);
   if (AppState.filters.search) {
-    filteredActions = filteredActions.filter(a => 
-      a.intitule?.toLowerCase().includes(AppState.filters.search) ||
-      a.responsable?.toLowerCase().includes(AppState.filters.search) ||
-      a.programme?.toLowerCase().includes(AppState.filters.search)
+    const q = AppState.filters.search;
+    rows = rows.filter(a =>
+      (a.intitule || '').toLowerCase().includes(q) ||
+      (a.responsable || '').toLowerCase().includes(q) ||
+      (a.programme || '').toLowerCase().includes(q) ||
+      (a.activite || '').toLowerCase().includes(q)
     );
   }
-  
-  if (filteredActions.length === 0) {
-    list.innerHTML = '<div class="loading">Aucune action trouvée</div>';
+
+  // Tri
+  const { key, dir } = AppState.actionsSort;
+  const numeric = (key === 'tauxphysique' || key === 'tauxfinancier' || key === 'sortindex');
+  rows.sort((a, b) => {
+    if (numeric) return ((parseFloat(a[key]) || 0) - (parseFloat(b[key]) || 0)) * dir;
+    return String(a[key] == null ? '' : a[key]).toLowerCase()
+      .localeCompare(String(b[key] == null ? '' : b[key]).toLowerCase()) * dir;
+  });
+
+  if (rows.length === 0) {
+    list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><h3>Aucune action</h3><p>Aucune action ne correspond aux filtres.</p></div>';
     return;
   }
 
-  list.innerHTML = filteredActions.map(action => `
-    <div class="action-card" data-action-id="${action.id}">
-      <div class="action-card-header">
-        <div>
-          <h4>${escapeHtml(action.intitule || action.activite || 'Sans titre')}</h4>
-          <div class="badges">
-            <span class="badge badge-physique">${action.tauxphysique || 0}% physique</span>
-            <span class="badge badge-financier">${action.tauxfinancier || 0}% financier</span>
-            <span class="badge badge-statut badge-${getStatutClass(action.statut)}">${escapeHtml(action.statut)}</span>
-          </div>
-        </div>
-      </div>
-      <div class="action-meta">
-        <span>Responsable: ${escapeHtml(action.responsable)}</span>
-        <span>Échéance: ${formatDate(action.echeance)}</span>
-      </div>
+  const arrow = (k) => AppState.actionsSort.key === k ? (AppState.actionsSort.dir === 1 ? '▲' : '▼') : '↕';
+  const ariaSort = (k) => AppState.actionsSort.key === k ? (AppState.actionsSort.dir === 1 ? 'ascending' : 'descending') : 'none';
+
+  const body = rows.map(a => {
+    const ech = a.echeancelibelle || (a.echeance ? formatDate(a.echeance) : '—');
+    const ph = parseFloat(a.tauxphysique) || 0, fi = parseFloat(a.tauxfinancier) || 0;
+    return `
+      <tr data-action-id="${a.id}">
+        <td class="cell-title">${escapeHtml(a.intitule || a.activite || 'Sans titre')}</td>
+        <td class="col-hide-sm">${escapeHtml(a.activite || a.action || '—')}</td>
+        <td class="col-hide-sm">${escapeHtml(ech)}</td>
+        <td class="col-num">${ph.toFixed(0)}% <span class="mini-progress"><span style="width:${Math.min(100, ph)}%"></span></span></td>
+        <td class="col-num col-hide-sm">${fi.toFixed(0)}%</td>
+        <td><span class="status-badge status-${getStatutSlug(a.statut)}">${escapeHtml(a.statut)}</span></td>
+      </tr>`;
+  }).join('');
+
+  const th = (k, label, cls = '') =>
+    `<th data-sort="${k}" class="${cls}" aria-sort="${ariaSort(k)}">${label} <span class="sort-ind">${arrow(k)}</span></th>`;
+
+  list.innerHTML = `
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          ${th('intitule', 'Intitulé')}
+          ${th('activite', 'Activité', 'col-hide-sm')}
+          ${th('echeance', 'Échéance', 'col-hide-sm')}
+          ${th('tauxphysique', 'Physique', 'col-num')}
+          ${th('tauxfinancier', 'Financier', 'col-num col-hide-sm')}
+          ${th('statut', 'Statut')}
+        </tr></thead>
+        <tbody>${body}</tbody>
+      </table>
     </div>
-  `).join('');
-  
-  // Ajouter les event listeners après le rendu
-  list.querySelectorAll('.action-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const actionId = parseInt(card.getAttribute('data-action-id'));
-      showView('detail', actionId);
-    });
-  });
+    <div class="text-muted" style="margin-top:12px;font-size:.82rem;">${rows.length} action${rows.length > 1 ? 's' : ''} affichée${rows.length > 1 ? 's' : ''}</div>`;
+
+  list.querySelectorAll('tbody tr').forEach(tr =>
+    tr.addEventListener('click', () => showView('detail', parseInt(tr.getAttribute('data-action-id')))));
+  list.querySelectorAll('th[data-sort]').forEach(th =>
+    th.addEventListener('click', () => {
+      const k = th.getAttribute('data-sort');
+      if (AppState.actionsSort.key === k) AppState.actionsSort.dir *= -1;
+      else AppState.actionsSort = { key: k, dir: 1 };
+      renderActionsList();
+    }));
 }
 
 function getStatutClass(statut) {
@@ -531,8 +587,33 @@ async function loadActionDetail(id) {
     document.getElementById('detail-activite').textContent = action.activite || '-';
     document.getElementById('detail-intitule').textContent = action.intitule || '-';
     document.getElementById('detail-responsable').textContent = action.responsable || '-';
-    document.getElementById('detail-echeance').textContent = formatDate(action.echeance) || '-';
-    document.getElementById('detail-statut').innerHTML = `<span class="badge badge-statut badge-${getStatutClass(action.statut)}">${escapeHtml(action.statut)}</span>`;
+    document.getElementById('detail-echeance').textContent = action.echeancelibelle || formatDate(action.echeance) || '-';
+    document.getElementById('detail-statut').innerHTML = `<span class="status-badge status-${getStatutSlug(action.statut)}">${escapeHtml(action.statut)}</span>`;
+
+    // Avancement physique / financier : éditable en ligne (si droits)
+    const ph = parseFloat(action.tauxphysique) || 0;
+    const fi = parseFloat(action.tauxfinancier) || 0;
+    const phI = document.getElementById('detail-physique-input');
+    const fiI = document.getElementById('detail-financier-input');
+    const phB = document.getElementById('detail-physique-bar');
+    const fiB = document.getElementById('detail-financier-bar');
+    phI.value = ph;
+    fiI.value = fi;
+    phB.style.width = Math.min(100, ph) + '%';
+    fiB.style.width = Math.min(100, fi) + '%';
+
+    const editable = canEditAction(action);
+    phI.disabled = !editable;
+    fiI.disabled = !editable;
+    const hint = document.getElementById('avancementHint');
+    if (hint) hint.style.display = editable ? 'block' : 'none';
+
+    // Barre live pendant la saisie ; sauvegarde à la sortie du champ (onchange remplace l'ancien handler)
+    phI.oninput = () => { phB.style.width = Math.min(100, Math.max(0, parseFloat(phI.value) || 0)) + '%'; };
+    fiI.oninput = () => { fiB.style.width = Math.min(100, Math.max(0, parseFloat(fiI.value) || 0)) + '%'; };
+    phI.onchange = () => saveAvancement(action.id);
+    fiI.onchange = () => saveAvancement(action.id);
+
     document.getElementById('detail-commentaire').textContent = action.commentaire || '-';
     
     // Résultats attendus
@@ -553,7 +634,7 @@ async function loadActionDetail(id) {
       : '-';
     
     // Budget
-    document.getElementById('detail-budget-previsionnel').textContent = formatNumber(action.budgetprevisionnel || action.budgettotal) || '-';
+    document.getElementById('detail-budget-previsionnel').textContent = action.budgetprevisionnellibelle || formatNumber(action.budgetprevisionnel || action.budgettotal) || '-';
     document.getElementById('detail-budget-t1').textContent = formatNumber(action.budgett1) || '-';
     document.getElementById('detail-budget-t2').textContent = formatNumber(action.budgett2) || '-';
     document.getElementById('detail-budget-t3').textContent = formatNumber(action.budgett3) || '-';
@@ -671,6 +752,31 @@ async function deleteAction(actionId) {
   } catch (error) {
     console.error('Erreur suppression action:', error);
     showError(error.message || 'Erreur lors de la suppression de l\'action');
+  }
+}
+
+/**
+ * Enregistre l'avancement physique/financier saisi en ligne dans la fiche détail.
+ */
+async function saveAvancement(actionId) {
+  const phI = document.getElementById('detail-physique-input');
+  const fiI = document.getElementById('detail-financier-input');
+  const ph = Math.min(100, Math.max(0, parseFloat(phI.value) || 0));
+  const fi = Math.min(100, Math.max(0, parseFloat(fiI.value) || 0));
+  phI.value = ph;
+  fiI.value = fi;
+  document.getElementById('detail-physique-bar').style.width = ph + '%';
+  document.getElementById('detail-financier-bar').style.width = fi + '%';
+
+  try {
+    await API.actions.update(actionId, { tauxPhysique: ph, tauxFinancier: fi });
+    if (AppState.currentAction) { AppState.currentAction.tauxphysique = ph; AppState.currentAction.tauxfinancier = fi; }
+    const a = AppState.actions.find(x => x.id === parseInt(actionId));
+    if (a) { a.tauxphysique = ph; a.tauxfinancier = fi; }
+    if (window.showSuccess) showSuccess('Avancement enregistré.', 'Mise à jour');
+    await loadStatistics(); // rafraîchit KPIs + graphiques
+  } catch (error) {
+    if (window.showError) showError(error.message || 'Erreur lors de l\'enregistrement', 'Échec');
   }
 }
 
@@ -848,6 +954,126 @@ function escapeHtml(text) {
 
 // Note: showSuccess et showError sont maintenant fournis par notifications.js
 // Pas besoin de les redéfinir ici
+
+function getStatutSlug(statut) {
+  const map = { 'À démarrer': 'a-demarrer', 'En cours': 'en-cours', 'En retard': 'en-retard', 'Achevé': 'acheve' };
+  return map[statut] || 'a-demarrer';
+}
+
+// ===== Coquille (thème, menu, navigation latérale) =====
+
+function closeSidebar() {
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebarScrim')?.classList.remove('show');
+}
+
+function initShell() {
+  // Thème clair/sombre (persisté)
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    if (AppState.view === 'dashboard') renderDashboardCharts();
+  });
+
+  // Menu mobile
+  document.getElementById('menuToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar')?.classList.toggle('open');
+    document.getElementById('sidebarScrim')?.classList.toggle('show');
+  });
+  document.getElementById('sidebarScrim')?.addEventListener('click', closeSidebar);
+
+  // Navigation latérale
+  document.querySelectorAll('.nav-item[data-view]').forEach((n) => {
+    n.addEventListener('click', () => showView(n.getAttribute('data-view')));
+  });
+  document.getElementById('navUsers')?.addEventListener('click', () => { window.location.href = '/users.html'; });
+
+  // Bascule Physique / Financier des barres par programme
+  document.querySelectorAll('#progMetricToggle .seg-btn').forEach((b) => {
+    b.addEventListener('click', () => {
+      AppState.programmeMetric = b.getAttribute('data-metric');
+      document.querySelectorAll('#progMetricToggle .seg-btn').forEach((x) => x.classList.toggle('active', x === b));
+      renderProgrammeBars();
+    });
+  });
+
+  // Sections réservées à l'Admin
+  if (AppState.user && AppState.user.role === 'Admin') {
+    document.querySelectorAll('.admin-only').forEach((el) => { el.style.display = ''; });
+  }
+}
+
+function updateNavCounts() {
+  const a = document.getElementById('navActionsCount');
+  if (a) a.textContent = AppState.actions.length;
+}
+
+// ===== Graphiques du tableau de bord (SVG/CSS, sans dépendance) =====
+
+function renderDashboardCharts() {
+  renderStatusDonut();
+  renderProgrammeBars();
+}
+
+function renderStatusDonut() {
+  const svg = document.getElementById('dashStatusDonut');
+  const legend = document.getElementById('dashStatusLegend');
+  if (!svg || !legend) return;
+
+  const order = [
+    ['À démarrer', '#64748B'], ['En cours', '#0EA5E9'],
+    ['En retard', '#E0840B'], ['Achevé', '#0E9F6E'],
+  ];
+  const counts = order.map(([name]) => AppState.actions.filter(a => a.statut === name).length);
+  const total = counts.reduce((s, n) => s + n, 0);
+
+  const cx = 60, cy = 60, r = 44, C = 2 * Math.PI * r, sw = 16;
+  let offset = 0, segs = '';
+  order.forEach(([, color], i) => {
+    const frac = total ? counts[i] / total : 0;
+    const len = frac * C;
+    if (len > 0) {
+      segs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"></circle>`;
+    }
+    offset += len;
+  });
+  svg.innerHTML =
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--surface-3)" stroke-width="${sw}"></circle>${segs}` +
+    `<text class="donut-total" x="${cx}" y="${cy - 2}" text-anchor="middle" dominant-baseline="middle">${total}</text>` +
+    `<text class="donut-sub" x="${cx}" y="${cy + 15}" text-anchor="middle">actions</text>`;
+  legend.innerHTML = order.map(([name, color], i) =>
+    `<div class="legend-row"><span class="legend-dot" style="background:${color}"></span><span class="legend-name">${name}</span><span class="legend-val">${counts[i]}</span></div>`
+  ).join('');
+}
+
+function renderProgrammeBars() {
+  const el = document.getElementById('dashProgrammeBars');
+  if (!el) return;
+  const metric = AppState.programmeMetric || 'tauxphysique';
+  const titleEl = document.getElementById('progBarsTitle');
+  if (titleEl) titleEl.textContent = `Avancement ${metric === 'tauxfinancier' ? 'financier' : 'physique'} par programme`;
+
+  const progs = [...new Set(AppState.actions.map(a => a.programme))];
+  if (!progs.length) { el.innerHTML = '<div class="loading">Aucune donnée</div>'; return; }
+  const data = progs.map(p => {
+    const acts = AppState.actions.filter(a => a.programme === p);
+    const avg = acts.reduce((s, a) => s + (parseFloat(a[metric]) || 0), 0) / acts.length;
+    return { p, avg };
+  }).sort((a, b) => b.avg - a.avg);
+
+  el.innerHTML = data.map(d => `
+    <div class="bar-row">
+      <div class="bar-head">
+        <span class="bar-label" title="${escapeHtml(d.p)}">${escapeHtml(d.p)}</span>
+        <span class="bar-val">${d.avg.toFixed(1)}%</span>
+      </div>
+      <span class="bar-track"><span class="bar-fill" style="width:${Math.min(100, Math.max(0, d.avg))}%"></span></span>
+    </div>`).join('');
+}
 
 // ===== Auto-refresh périodique (optionnel) =====
 

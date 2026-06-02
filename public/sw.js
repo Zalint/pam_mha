@@ -3,14 +3,22 @@
  * Gère le cache et le fonctionnement hors-ligne
  */
 
-const CACHE_NAME = 'suivi-pam-mha-v1';
+const CACHE_NAME = 'suivi-pam-mha-v3';
 const STATIC_CACHE = [
   '/',
   '/index.html',
   '/login.html',
   '/styles.css',
+  '/styles-2026.css',
+  '/styles-filters.css',
+  '/styles-mobile.css',
+  '/notifications.css',
   '/app.js',
   '/api.js',
+  '/filters.js',
+  '/import-export.js',
+  '/notifications.js',
+  '/mobile.js',
   '/manifest.json',
 ];
 
@@ -61,50 +69,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stratégie Network First pour les API
-  if (url.pathname.startsWith('/api/')) {
+  // Stratégie Network First pour TOUTES les ressources same-origin
+  // (HTML/CSS/JS/API toujours frais en ligne ; le cache sert de secours hors-ligne).
+  // Évite de servir des assets périmés après un déploiement.
+  if (url.origin === self.location.origin) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Mettre en cache seulement les réponses réussies
-          if (response && response.status === 200) {
+          if (response && response.status === 200 && response.type !== 'error') {
             const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
           }
           return response;
         })
-        .catch(() => {
-          // En cas d'échec, essayer de récupérer du cache
-          return caches.match(request);
-        })
+        .catch(() => caches.match(request))
     );
     return;
   }
 
-  // Stratégie Cache First pour les ressources statiques
+  // Cross-origin (CDN, polices…) : cache-first au mieux
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return fetch(request).then((response) => {
-          // Ne pas mettre en cache les réponses non-OK
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response;
-          }
-
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-
-          return response;
-        });
-      })
+    caches.match(request).then((cached) => cached || fetch(request).catch(() => cached))
   );
 });
 

@@ -1,9 +1,14 @@
 const express = require('express');
+const pool = require('../config/database');
 const Action = require('../models/Action');
+const ActionVersion = require('../models/ActionVersion');
+const xlsxMapper = require('../services/xlsxMapper');
 const { authenticateAPIKey } = require('../middleware/auth');
 const { sanitizeInputs } = require('../middleware/validation');
 
 const router = express.Router();
+
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 /**
  * API Externe - Routes identiques aux routes internes mais avec authentification par API key
@@ -149,6 +154,77 @@ router.get('/programmes', authenticateAPIKey, async (req, res) => {
     res.json(programmes);
   } catch (err) {
     console.error('Erreur récupération programmes (externe):', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
+ * GET /api/external/actions/export
+ * Exporte toutes les actions au format xlsx (équivalent externe de GET /api/actions/export)
+ */
+router.get('/actions/export', authenticateAPIKey, async (req, res) => {
+  try {
+    const actions = await Action.findAll();
+    const buffer = await xlsxMapper.buildWorkbook(actions);
+    res.setHeader('Content-Type', XLSX_MIME);
+    res.setHeader('Content-Disposition', 'attachment; filename="Plan d\'actions MHA 2026 - export.xlsx"');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Erreur export (externe):', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
+ * POST /api/external/actions/import
+ * Remplace toutes les actions par le contenu d'un xlsx (corps brut).
+ */
+router.post('/actions/import', authenticateAPIKey, express.raw({ type: () => true, limit: '25mb' }), async (req, res) => {
+  const buffer = req.body;
+  if (!buffer || !buffer.length) {
+    return res.status(400).json({ error: 'Aucun fichier reçu' });
+  }
+  let parsed;
+  try {
+    parsed = await xlsxMapper.parseWorkbook(buffer);
+  } catch (err) {
+    return res.status(400).json({ error: 'Fichier xlsx illisible : ' + err.message });
+  }
+  if (!parsed.actions.length) {
+    return res.status(400).json({ error: 'Aucune ligne exploitable dans le fichier' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const version = await ActionVersion.snapshotCurrent(client, {
+      label: `Avant import API ${new Date().toISOString().slice(0, 16).replace('T', ' ')}`,
+      reason: `Import xlsx via API externe (${parsed.actions.length} lignes)`,
+      source: 'pre-import',
+      userId: null,
+    });
+    await Action.deleteAll(client);
+    const importedCount = await Action.bulkInsert(client, parsed.actions, null);
+    await client.query('COMMIT');
+    res.json({ importedCount, snapshotVersionId: version.id, snapshotCount: version.actioncount });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Erreur import (externe):', err);
+    res.status(500).json({ error: 'Erreur lors de l\'import : ' + err.message });
+  } finally {
+    client.release();
+  }
+});
+
+/**
+ * GET /api/external/actions/versions
+ * Liste des snapshots de versioning
+ */
+router.get('/actions/versions', authenticateAPIKey, async (req, res) => {
+  try {
+    res.json(await ActionVersion.findAll());
+  } catch (err) {
+    console.error('Erreur liste versions (externe):', err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

@@ -45,10 +45,12 @@ CREATE TABLE IF NOT EXISTS actions (
   resultatsattendus TEXT,
   indicateurscibles TEXT,
   indicateursresultats DECIMAL(5,2),
-  
-  -- Responsabilité et échéance
-  responsable VARCHAR(255) NOT NULL,
-  echeance DATE NOT NULL,
+  indicateursresultatsvaleur TEXT,        -- colonne "Résultats" des indicateurs (valeur brute, xlsx col F)
+
+  -- Responsabilité et échéance (le xlsx ne fournit pas toujours ces champs -> nullable)
+  responsable VARCHAR(255),
+  echeance DATE,
+  echeancelibelle TEXT,                    -- libellé brut de l'échéance (ex : "4ème trimestre")
   
   -- État d'exécution
   tauxphysique DECIMAL(5,2) DEFAULT 0 CHECK (tauxphysique >= 0 AND tauxphysique <= 100),
@@ -58,16 +60,38 @@ CREATE TABLE IF NOT EXISTS actions (
   -- Budget
   budgettotal DECIMAL(15,2),
   budgetprevisionnel DECIMAL(15,2),
+  budgetprevisionnellibelle TEXT,          -- budget prévisionnel brut (ex : "39 850 000 FCFA", xlsx col H)
   budgett1 DECIMAL(15,2),
   budgett2 DECIMAL(15,2),
   budgett3 DECIMAL(15,2),
   budgett4 DECIMAL(15,2),
-  
+
   -- Commentaires et audit
   commentaire TEXT,
+  sortindex INTEGER,                        -- ordre d'origine des lignes du xlsx importé
   lastmodifiedby INTEGER REFERENCES users(id),
   createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================================
+-- 3b. TABLES DE VERSIONING DES ACTIONS (snapshot avant import / restauration)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS actionversions (
+  id SERIAL PRIMARY KEY,
+  label VARCHAR(255) NOT NULL,
+  reason TEXT,
+  source VARCHAR(50) NOT NULL DEFAULT 'manual',   -- 'pre-import' | 'pre-restore' | 'manual'
+  actioncount INTEGER NOT NULL DEFAULT 0,
+  createdby INTEGER REFERENCES users(id),
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS actionversionrows (
+  id SERIAL PRIMARY KEY,
+  versionid INTEGER NOT NULL REFERENCES actionversions(id) ON DELETE CASCADE,
+  data JSONB NOT NULL,
+  createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================================================
@@ -104,6 +128,10 @@ CREATE INDEX IF NOT EXISTS idx_actions_statut ON actions(statut);
 CREATE INDEX IF NOT EXISTS idx_actions_responsable ON actions(responsable);
 CREATE INDEX IF NOT EXISTS idx_actions_echeance ON actions(echeance);
 CREATE INDEX IF NOT EXISTS idx_actions_action ON actions(action);
+CREATE INDEX IF NOT EXISTS idx_actions_sortindex ON actions(sortindex);
+
+-- Index sur les tables de versioning
+CREATE INDEX IF NOT EXISTS idx_actionversionrows_version ON actionversionrows(versionid);
 
 -- Index sur la table historique
 CREATE INDEX IF NOT EXISTS idx_historique_action ON historique(actionid);
