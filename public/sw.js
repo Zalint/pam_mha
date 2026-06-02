@@ -3,7 +3,7 @@
  * Gère le cache et le fonctionnement hors-ligne
  */
 
-const CACHE_NAME = 'suivi-pam-mha-v3';
+const CACHE_NAME = 'suivi-pam-mha-v4';
 const STATIC_CACHE = [
   '/',
   '/index.html',
@@ -11,14 +11,12 @@ const STATIC_CACHE = [
   '/styles.css',
   '/styles-2026.css',
   '/styles-filters.css',
-  '/styles-mobile.css',
   '/notifications.css',
   '/app.js',
   '/api.js',
   '/filters.js',
   '/import-export.js',
   '/notifications.js',
-  '/mobile.js',
   '/manifest.json',
 ];
 
