@@ -111,6 +111,33 @@ psql -U $DB_USER -d $DB_NAME -f database/production_seed.sql
 Write-Host "✅ Terminé!" -ForegroundColor Green
 ```
 
+## 🆕 Migration 2026 : Import/Export xlsx + Versioning
+
+Cette migration ajoute le support de l'import/export du fichier `Plan d'actions MHA 2026.xlsx`
+et le versioning (snapshot) des actions.
+
+```powershell
+psql -U postgres -d mha_pam_production -f database/migration_2026_xlsx_versioning.sql
+```
+
+Elle est **idempotente** (`IF NOT EXISTS`) et réalise :
+
+- Ajout des colonnes `echeancelibelle`, `budgetprevisionnellibelle`,
+  `indicateursresultatsvaleur`, `sortindex` sur `actions` (fidélité « libellé brut + valeur dérivée »).
+- Levée des contraintes `NOT NULL` sur `actions.echeance` et `actions.responsable`
+  (le xlsx ne fournit pas toujours ces champs).
+- Création des tables `actionversions` et `actionversionrows` (snapshot complet en JSONB).
+
+Vérification :
+
+```sql
+\d actions          -- doit contenir les 4 nouvelles colonnes
+\dt                 -- doit lister actionversions et actionversionrows
+```
+
+> Sur une base **neuve**, le `production_schema.sql` inclut déjà ces changements : la
+> migration n'est utile que pour une base de production **déjà existante**.
+
 ## ⚠️ Note Importante
 
 PostgreSQL convertit automatiquement tous les noms de colonnes et tables en **minuscules** sauf s'ils sont entre guillemets doubles. C'est pourquoi :

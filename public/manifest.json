@@ -4,8 +4,8 @@
   "description": "Plateforme de suivi des Plans d'Actions Ministériels - Ministère de l'Hydraulique et de l'Assainissement",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f9fa",
-  "theme_color": "#2d8b6d",
+  "background_color": "#0F2A43",
+  "theme_color": "#0F2A43",
   "orientation": "any",
   "icons": [
     {

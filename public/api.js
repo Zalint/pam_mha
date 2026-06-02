@@ -155,6 +155,53 @@ const API = {
     async getHistorique(id) {
       return API.get(`/actions/${id}/historique`);
     },
+
+    /** Importe un fichier xlsx (remplace tout). file = File/Blob. */
+    async importXlsx(file) {
+      const token = API.getToken();
+      const res = await fetch('/api/actions/import', {
+        method: 'POST',
+        headers: { ...(token && { Authorization: `Bearer ${token}` }), 'Content-Type': 'application/octet-stream' },
+        body: file,
+      });
+      if (res.status === 401) { API.logout(); return null; }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'import');
+      return data;
+    },
+
+    /** Exporte au format xlsx (renvoie un Blob). filters optionnels : {programme, statut, search}. */
+    async exportXlsx(filters = {}) {
+      const params = new URLSearchParams();
+      if (filters.programme) params.append('programme', filters.programme);
+      if (filters.statut) params.append('statut', filters.statut);
+      if (filters.search) params.append('search', filters.search);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      const token = API.getToken();
+      const res = await fetch('/api/actions/export' + qs, { headers: { ...(token && { Authorization: `Bearer ${token}` }) } });
+      if (res.status === 401) { API.logout(); return null; }
+      if (!res.ok) throw new Error('Erreur lors de l\'export');
+      return res.blob();
+    },
+  },
+
+  /**
+   * Versions (snapshots des actions)
+   */
+  versions: {
+    async list() {
+      return API.get('/actions/versions');
+    },
+    async restore(id) {
+      return API.post(`/actions/versions/${id}/restore`, {});
+    },
+    async exportVersion(id) {
+      const token = API.getToken();
+      const res = await fetch(`/api/actions/versions/${id}/export`, { headers: { ...(token && { Authorization: `Bearer ${token}` }) } });
+      if (res.status === 401) { API.logout(); return null; }
+      if (!res.ok) throw new Error('Erreur lors de l\'export de la version');
+      return res.blob();
+    },
   },
 
   /**

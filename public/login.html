@@ -4,58 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Connexion - Suivi PAM MHA">
-    <meta name="theme-color" content="#2d8b6d">
+    <meta name="theme-color" content="#0F2A43">
     <title>Connexion - Suivi PAM MHA</title>
-    
+
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="/icon-192.png">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles-2026.css">
+    <style>
+        body.login-body {
+            display: grid;
+            place-items: center;
+            min-height: 100dvh;
+            padding: 24px;
+            background: linear-gradient(135deg, #0B1B2D 0%, #0F2A43 45%, #1C4A73 100%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            padding: 40px 34px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .38);
+        }
+        .login-logo {
+            width: 62px; height: 62px; border-radius: 18px; margin: 0 auto 18px;
+            display: grid; place-items: center;
+            background: linear-gradient(135deg, var(--blue-400), var(--blue-600));
+            box-shadow: 0 8px 22px rgba(3, 105, 161, .4);
+        }
+        .login-logo svg { width: 34px; height: 34px; color: #fff; }
+        .login-header { text-align: center; margin-bottom: 28px; }
+        .login-header h1 { font-size: 1.12rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+        .login-header p { color: var(--text-muted); font-size: .88rem; margin-top: 6px; }
+        .login-form .form-group { margin-bottom: 18px; }
+        .login-form label { text-transform: none; font-size: .85rem; color: var(--text-2); }
+        .btn-block { width: 100%; justify-content: center; padding: 12px; }
+        .error-message {
+            background: var(--danger-bg); color: var(--danger);
+            padding: 10px 14px; border-radius: var(--r-sm);
+            font-size: .85rem; margin-bottom: 16px; text-align: center;
+        }
+        .login-footer { text-align: center; margin-top: 22px; color: var(--text-muted); font-size: .8rem; }
+    </style>
 </head>
 <body class="login-body">
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>Ministère de l'Hydraulique et de l'Assainissement</h1>
-                <p>Suivi des Plans d'Actions Ministériels</p>
-            </div>
-
-            <form id="loginForm" class="login-form">
-                <div class="form-group">
-                    <label for="username">Nom d'utilisateur</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        class="input" 
-                        required 
-                        autofocus
-                        autocomplete="username"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Mot de passe</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="input" 
-                        required
-                        autocomplete="current-password"
-                    >
-                </div>
-
-                <div id="errorMessage" class="error-message" style="display: none;"></div>
-
-                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                    Se connecter
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <p>République du Sénégal</p>
-            </div>
+    <div class="login-card">
+        <div class="login-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5S5 10 5 14.5a7 7 0 0 0 14 0C19 10 12 2.5 12 2.5z"/></svg>
         </div>
+        <div class="login-header">
+            <h1>Ministère de l'Hydraulique et de l'Assainissement</h1>
+            <p>Suivi des Plans d'Actions Ministériels</p>
+        </div>
+
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" class="input" required autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="input" required autocomplete="current-password">
+            </div>
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Se connecter</button>
+        </form>
+
+        <div class="login-footer">République du Sénégal</div>
     </div>
 
     <script src="/api.js"></script>
@@ -64,14 +80,12 @@
         const errorMessage = document.getElementById('errorMessage');
         const loginBtn = document.getElementById('loginBtn');
 
-        // Vérifier si déjà connecté
         if (localStorage.getItem('token')) {
             window.location.href = '/';
         }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
@@ -82,12 +96,9 @@
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
-
                 const data = await response.json();
 
                 if (response.ok) {
@@ -111,4 +122,3 @@
     </script>
 </body>
 </html>
-

@@ -165,7 +165,7 @@ function renderUsers() {
     <div class="user-card" data-user-id="${user.id}">
       <div class="user-card-header">
         <div>
-          <h3>👤 ${escapeHtml(user.fullname || user.fullName)}</h3>
+          <h3 style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${escapeHtml(user.fullname || user.fullName)}</h3>
           <div class="user-meta">
             <span class="badge badge-role badge-${user.role.toLowerCase()}">${user.role}</span>
             <span>•</span>
@@ -184,7 +184,7 @@ function renderUsers() {
       </div>
       <div class="user-actions">
         <button class="btn btn-small btn-primary" onclick="editUser(${user.id})">Modifier</button>
-        <button class="btn btn-small btn-warning" onclick="resetPassword(${user.id}, '${escapeHtml(user.fullname || user.fullName)}')">🔑 Reset MDP</button>
+        <button class="btn btn-small btn-warning" onclick="resetPassword(${user.id}, '${escapeHtml(user.fullname || user.fullName)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4l2 2-2 2 2 2-3 3-2-2-2.15 2.15"/></svg> Reset MDP</button>
         <button class="btn btn-small btn-secondary" onclick="deleteUser(${user.id})">Supprimer</button>
       </div>
     </div>

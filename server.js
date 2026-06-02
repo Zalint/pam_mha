@@ -8,6 +8,7 @@ const config = require('./config/config');
 // Import des routes
 const authRoutes = require('./routes/auth');
 const actionsRoutes = require('./routes/actions');
+const importExportRoutes = require('./routes/importExport');
 const statisticsRoutes = require('./routes/statistics');
 const usersRoutes = require('./routes/users');
 const externalRoutes = require('./routes/external');
@@ -36,6 +37,9 @@ app.use((req, res, next) => {
 
 // API interne (JWT)
 app.use('/api/auth', authRoutes);
+// Import/Export/Versions monté avant le routeur actions générique (sinon /export,
+// /import, /versions seraient capturés par GET /:id)
+app.use('/api/actions', importExportRoutes);
 app.use('/api/actions', actionsRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/users', usersRoutes);

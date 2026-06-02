@@ -1,5 +1,21 @@
 const pool = require('../config/database');
 
+// Helpers internes ---------------------------------------------------------
+function firstNonEmpty(...vals) {
+  for (const v of vals) if (v !== null && v !== undefined && String(v).trim() !== '') return v;
+  return null;
+}
+function numOrNull(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(v);
+  return isFinite(n) ? n : null;
+}
+function clampPct(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, n));
+}
+
 class Action {
   /**
    * Récupère toutes les actions avec filtres optionnels
@@ -110,7 +126,8 @@ class Action {
       'tauxPhysique', 'tauxFinancier', 'statut', 'budgetTotal', 'budgetT1',
       'budgetT2', 'budgetT3', 'budgetT4', 'commentaire',
       'action', 'activite', 'resultatsAttendus', 'indicateursCibles',
-      'indicateursResultats', 'budgetPrevisionnel'
+      'indicateursResultats', 'budgetPrevisionnel',
+      'echeanceLibelle', 'budgetPrevisionnelLibelle', 'indicateursResultatsValeur', 'sortIndex'
     ];
 
     for (const field of updateableFields) {
@@ -183,6 +200,83 @@ class Action {
       'SELECT DISTINCT programme FROM actions ORDER BY programme'
     );
     return result.rows.map(row => row.programme);
+  }
+
+  /**
+   * Supprime toutes les actions (utilisé par l'import « remplacer tout » et la restauration).
+   * @param {object} db client transactionnel (pool.connect()) ou pool
+   */
+  static async deleteAll(db) {
+    await (db || pool).query('DELETE FROM actions');
+  }
+
+  /**
+   * Insère une action à partir d'un objet à clés minuscules (sortie du mapper xlsx
+   * ou ligne de snapshot). Garantit les champs NOT NULL (programme, intitule, statut).
+   * @param {object} db client transactionnel ou pool
+   */
+  static async insertFromObject(db, obj, { lastModifiedBy = null } = {}) {
+    const executor = db || pool;
+    const intitule = firstNonEmpty(
+      obj.intitule, obj.resultatsattendus, obj.activite, obj.action, obj.programme
+    ) || '(sans intitulé)';
+
+    const cols = [
+      'programme', 'sousdirection', 'action', 'activite', 'intitule',
+      'resultatsattendus', 'indicateurscibles', 'indicateursresultats', 'indicateursresultatsvaleur',
+      'responsable', 'echeance', 'echeancelibelle',
+      'tauxphysique', 'tauxfinancier', 'statut',
+      'budgettotal', 'budgetprevisionnel', 'budgetprevisionnellibelle',
+      'budgett1', 'budgett2', 'budgett3', 'budgett4',
+      'commentaire', 'sortindex', 'lastmodifiedby',
+    ];
+    const vals = [
+      firstNonEmpty(obj.programme) || '(sans programme)',
+      obj.sousdirection ?? null,
+      obj.action ?? null,
+      obj.activite ?? null,
+      String(intitule),
+      obj.resultatsattendus ?? null,
+      obj.indicateurscibles ?? null,
+      numOrNull(obj.indicateursresultats),
+      obj.indicateursresultatsvaleur ?? null,
+      obj.responsable ?? null,
+      obj.echeance ?? null,
+      obj.echeancelibelle ?? null,
+      clampPct(obj.tauxphysique),
+      clampPct(obj.tauxfinancier),
+      obj.statut || 'À démarrer',
+      numOrNull(obj.budgettotal),
+      numOrNull(obj.budgetprevisionnel),
+      obj.budgetprevisionnellibelle ?? null,
+      numOrNull(obj.budgett1),
+      numOrNull(obj.budgett2),
+      numOrNull(obj.budgett3),
+      numOrNull(obj.budgett4),
+      obj.commentaire ?? null,
+      numOrNull(obj.sortindex),
+      lastModifiedBy,
+    ];
+    const placeholders = cols.map((_, i) => '$' + (i + 1)).join(', ');
+    const result = await executor.query(
+      `INSERT INTO actions (${cols.join(', ')}) VALUES (${placeholders}) RETURNING id`,
+      vals
+    );
+    return result.rows[0];
+  }
+
+  /**
+   * Insère en masse une liste d'actions (objets à clés minuscules) dans une transaction.
+   * @param {object} db client transactionnel
+   * @returns {number} nombre de lignes insérées
+   */
+  static async bulkInsert(db, actions, userId = null) {
+    let count = 0;
+    for (const a of actions) {
+      await this.insertFromObject(db, a, { lastModifiedBy: userId });
+      count++;
+    }
+    return count;
   }
 }
 
